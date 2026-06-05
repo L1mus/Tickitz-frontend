@@ -44,14 +44,14 @@ const InputLogin = forwardRef(
                         >
                             {showPassword ? (
                                 <img
-                                    className="w-6"
-                                    src={icon}
+                                    className="w-5 opacity-50"
+                                    src="/src/assets/icons/fi_eye.svg"
                                     alt="closed eye password"
                                 />
                             ) : (
                                 <img
-                                    className="w-6"
-                                    src={icon}
+                                    className="w-5 opacity-50"
+                                    src="/src/assets/icons/fi_eye-off.svg"
                                     alt="open eye password"
                                 />
                             )}
