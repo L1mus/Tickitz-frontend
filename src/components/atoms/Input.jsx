@@ -14,7 +14,7 @@ const InputLogin = forwardRef(
             <div className="space-y-2">
                 <label
                     htmlFor={id}
-                    className="font-montserrat block text-sm font-medium text-gray-700"
+                    className="font-[var-(--font-main)] block text-sm font-medium"
                 >
                     {label}
                 </label>
@@ -22,7 +22,7 @@ const InputLogin = forwardRef(
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                         <img
                             src={icon}
-                            alt=""
+                            alt="icons"
                             className="h-5 w-5 opacity-50 transition-opacity group-focus-within:opacity-100"
                         />
                     </div>
@@ -33,7 +33,7 @@ const InputLogin = forwardRef(
                         id={id}
                         type={inputType}
                         placeholder={placeholder}
-                        className="focus:ring-primary font-montserrat w-full rounded-xl border border-gray-200 py-3 pr-12 pl-10 transition-all outline-none focus:border-transparent focus:ring-2"
+                        className="font-[var-(--font-main)] w-full rounded-sm border border-gray-300 py-3 pr-12 pl-10 transition-all focus:ring-2 focus:border-[var-(--color-primary)]"
                     />
 
                     {type === "password" && (
@@ -45,13 +45,13 @@ const InputLogin = forwardRef(
                             {showPassword ? (
                                 <img
                                     className="w-6"
-                                    src=""
+                                    src={icon}
                                     alt="closed eye password"
                                 />
                             ) : (
                                 <img
                                     className="w-6"
-                                    src=""
+                                    src={icon}
                                     alt="open eye password"
                                 />
                             )}

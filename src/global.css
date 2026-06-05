@@ -4,13 +4,13 @@
 @theme {
     --font-main: "Mulish", sans-serif;
 
-    --primary-color: hsl(224, 76%, 48%);
-    --secondary-color: hsl(234, 18%, 68%);
-    --important-color: hsl(0, 93%, 42%);
-    --active-color: hsl(164, 100%, 36%);
+    --color-primary: hsl(224, 76%, 48%);
+    --color-secondary: hsl(234, 18%, 68%);
+    --color-important: hsl(0, 93%, 42%);
+    --color-active: hsl(164, 100%, 36%);
     --title-info-darkgrey: hsl(247, 15%, 35%);
     --title-info-grey: hsl(0, 0%, 67%);
-    --bg-color: hsl(220, 18%, 97%);
+    --color-bg: hsl(220, 18%, 97%);
 }
 
 body {
