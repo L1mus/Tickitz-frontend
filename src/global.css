@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 @theme {
-    --font-main: "Mulish", sans-serif;
+    --font-main: "Mulish", Arial, sans-serif;
 
     --color-primary: hsl(224, 76%, 48%);
     --color-secondary: hsl(234, 18%, 68%);
