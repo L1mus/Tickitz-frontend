@@ -1,117 +1,79 @@
 import { useState, useEffect } from "react";
 import { Button } from "../components/atoms/Button";
-import InputField from "../components/atoms/Input";
 import MovieCard from "../components/organism/MovieCard";
+import Header from "../components/organism/Header";
+import Footer from "../components/organism/Footer";
+import { useDispatch, useSelector } from "react-redux";
+import { getMovie } from "../redux/slices/movieSlice";
 
 function MovieList() {
+    const { movieList, pagination, loading, error } = useSelector((state) => state.movies);
+    const dispatch = useDispatch();
 
-    const movies = [
-        {
-            id: "lion-king",
-            poster: "/src/assets/images/example.png",
-            title: "Lion King",
-            release: "December 2020",
-            genre: ["Adventure", "Comedy"],
-        },
-        {
-            id: "lion-king-2",
-            poster: "/src/assets/images/example.png",
-            title: "King Lion",
-            release: "December 2020",
-            genre: ["Adventure", "Comedy"],
-        },
-        {
-            id: "lion-king-3",
-            poster: "/src/assets/images/example.png",
-            title: "The Avengers",
-            release: "December 2020",
-            genre: ["Adventure", "Comedy"],
-        },
-        {
-            id: "lion-king-4",
-            poster: "/src/assets/images/example.png",
-            title: "The Hulk",
-            release: "December 2020",
-            genre: ["Adventure", "Comedy"],
-        },
-        {
-            id: "lion-king-5",
-            poster: "/src/assets/images/example.png",
-            title: "Blue Lock",
-            release: "December 2020",
-            genre: ["Adventure", "Comedy"],
-        },
-        {
-            id: "lion-king-6",
-            poster: "/src/assets/images/example.png",
-            title: "Demon God",
-            release: "December 2020",
-            genre: ["Adventure", "Comedy"],
-        },
-        {
-            id: "lion-king-7",
-            poster: "/src/assets/images/example.png",
-            title: "The Mullet",
-            release: "December 2020",
-            genre: ["Adventure", "Comedy"],
-        },
-        {
-            id: "lion-king-8",
-            poster: "/src/assets/images/example.png",
-            title: "Thor",
-            release: "December 2020",
-            genre: ["Adventure", "Comedy"],
-        },
-        {
-            id: "lion-king-9",
-            poster: "/src/assets/images/example.png",
-            title: "Flash",
-            release: "December 2020",
-            genre: ["Adventure", "Comedy"],
-        },
-        {
-            id: "lion-king-10",
-            poster: "/src/assets/images/example.png",
-            title: "Spiderman",
-            release: "December 2020",
-            genre: ["Adventure", "Comedy"],
-        },
-        {
-            id: "lion-king-11",
-            poster: "/src/assets/images/example.png",
-            title: "Social Distancing",
-            release: "December 2020",
-            genre: ["Adventure", "Comedy"],
-        },
-        {
-            id: "lion-king-12",
-            poster: "/src/assets/images/example.png",
-            title: "Bullet",
-            release: "December 2020",
-            genre: ["Adventure", "Comedy"],
-        },
-    ]
+    const [search, setSearch] = useState("");
+    const [activeGenre, setActiveGenre] = useState("");
+    const [page, setPage] = useState(1); 
+    const API_URL ="http://localhost:8080/"
 
-    const handleDetail = (id) => alert(`Detail film: ${id}`);
-    const handleBuyTicket = (id) => alert(`Beli tiket film: ${id}`);
+    const genresList = ["Thriller", "Horror", "Romantic", "Adventure", "Sci-Fi"];
+
+useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {        
+        dispatch(getMovie({ 
+            search, 
+            genre: activeGenre, 
+     //     status: "now_showing", opsional jika ingin menampilkan hanya film yang tayang bulan ini
+            page 
+        }));
+
+    }, 300); 
+
+    return () => clearTimeout(delayDebounceFn);
+}, [dispatch, search, activeGenre, page]); 
+
+    const handlePageChange = (targetUrl) => {
+        if (!targetUrl) return;
+
+        const queryString = targetUrl.split('?')[1];
+        if (queryString) {
+            const urlParams = new URLSearchParams(queryString);
+            const pageNumber = urlParams.get('page') || '1';
+            
+            setPage(parseInt(pageNumber, 10));
+        }
+    };
+
+    const handleGenreClick = (genreName) => {
+        if (activeGenre === genreName) {
+            setActiveGenre("");
+        } else {
+            setActiveGenre(genreName);
+        }
+        setPage(1);
+    };
+
+    const handleSearchChange = (e) => {
+        setSearch(e.target.value);
+        setPage(1); 
+    };
 
     function HeroBanner() {
         const heroBanners = [
             {
                 id: 1,
-                backdrop: "/src/assets/images/example.png",
+                backdrop: "/src/assets/images/supergirl.webp",
                 tagline: "LIST MOVIE OF THE WEEK",
                 title: "Experience the Magic of Cinema: Book Your Tickets Today"
             },
             {
                 id: 2,
-                backdrop: "/src/assets/images/example.png",
+                backdrop: "/src/assets/images/minions-monster.webp",
                 tagline: "NEW RELEASE THIS WEEK",
                 title: "Discover the Most Anticipated Action Blockbusters"
             },
             {
                 id: 3,
-                backdrop: "/src/assets/images/example.png",
+                backdrop: "/src/assets/images/garuda-di-dadaku.webp",
                 tagline: "EXCLUSIVE IN TICKITZ",
                 title: "Watch Premium Cinematic Masterpieces from Your Best Seats"
             }
@@ -124,7 +86,7 @@ function MovieList() {
                 setCurrentIndex((prevIndex) =>
                     prevIndex === heroBanners.length - 1 ? 0 : prevIndex + 1
                 );
-            }, 5000);
+            }, 3000);
 
             return () => clearInterval(interval);
         }, [heroBanners.length]);
@@ -171,8 +133,8 @@ function MovieList() {
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
                                 className={`transition-all duration-300 rounded-full ${currentIndex === index
-                                        ? "w-6 h-1.5 bg-blue-600"
-                                        : "w-1.5 h-1.5 bg-white/50 hover:bg-white"
+                                    ? "w-6 h-1.5 bg-blue-600"
+                                    : "w-1.5 h-1.5 bg-white/50 hover:bg-white"
                                     }`}
                                 aria-label={`Go to slide ${index + 1}`}
                             />
@@ -190,69 +152,98 @@ function MovieList() {
                 {/* content */}
 
                 <section className="flex flex-col md:flex-row gap-5">
-                    <form action="">
-                        <label className="text-gray-700" htmlFor="">Search Event</label>
-                        <div className="border border-gray-300 rounded-md flex w-70 h-15 p-2 px-4 mt-2">
-                            <img className="opacity-20 w-5" src="/src/assets/icons/search.svg" alt="" />
-                            <input placeholder="Spiderman" className="outline-none pl-2 focus:outline-0 w-full" type="text" />
-                        </div>
-                    </form>
                     <div>
+                        <label className="text-gray-700 font-semibold" htmlFor="search-input">Search Movie</label>
+                        <div className="border border-gray-300 rounded-md flex w-70 h-12 p-2 px-4 mt-2 bg-white items-center">
+                            <input
+                                id="search-input"
+                                value={search}
+                                onChange={handleSearchChange}
+                                placeholder="Spiderman..."
+                                className="outline-none pl-2 focus:outline-0 w-full text-gray-800"
+                                type="text"
+                            />
+                        </div>
+                    </div>
 
-                        <p className="text-gray-700">Filter</p>
-                        <div className="mt-4 text-gray-700">
-                            <Button>Thriller</Button>
-                            <Button>Horror</Button>
-                            <Button>Romantic</Button>
-                            <Button>Adventure</Button>
-                            <Button>Sci-Fi</Button>
+                    <div>
+                        <p className="text-gray-700 font-semibold mb-2">Filter Genre</p>
+                        <div className="flex flex-wrap gap-2">
+                            {genresList.map((g) => (
+                                <button
+                                    key={g}
+                                    onClick={() => handleGenreClick(g)}
+                                    className={`px-4 py-2 rounded-md font-medium border text-sm ${activeGenre === g
+                                        ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                                        : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                                        }`}
+                                >
+                                    {g}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 </section>
 
-                {/* fetch film dan hasil filternya */}
-                <section className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 my-5 w-full max-w-6xl mx-auto">
+                {loading ? (
+                    <div className="text-center py-10 text-gray-500 font-medium">Loading movies...</div>
+                ) : error ? (
+                    <div className="text-center py-10 text-red-500 font-medium">Error: {error}</div>
+                ) : movieList.length === 0 ? (
+                    <div className="text-center py-10 text-gray-500 font-medium">No movies found.</div>
+                ) : (
+                    <>
+                        <section className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 my-5 w-full max-w-6xl mx-auto">
+                            {movieList?.map((m) => (
+                                <div key={m.id} className="w-full">
+                                    <MovieCard id={m.id} poster={`${API_URL}${m.poster}`} title={m.title} genres={m.genres} />
+                                </div>
+                            ))}
+                        </section>
 
-                
-                {movies.map((m, index) => (
-                    
-                    <section className="my-4 w-full">
-                    <MovieCard
-                    key={index}
-                    id={m.id}
-                    poster={m.poster}
-                    title={m.title}
-                    genre={m.genre}
-                    onDetail={handleDetail}
-                    onBuyTicket={handleBuyTicket}
-                    />
-                    </section>
-                ))}
+                        <section className="flex justify-center items-center gap-2 my-8 flex-wrap">
 
+                            <button
+                                disabled={!pagination?.has_prev}
+                                onClick={() => handlePageChange(pagination.prev)}
+                                className="px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 text-sm font-semibold transition-colors"
+                            >
+                                Previous
+                            </button>
 
-                    {/* pagination */}
-                    <section>
+                            {Array.from({ length: pagination?.total_page || 1 }, (_, index) => {
+                                const pageNumber = index + 1; 
 
-                    </section>
-                </section>
+                                const isActive = pagination?.current_page === pageNumber;
 
-                <section className="bg-blue-600 w-full my-5 h-120 md:h-80 rounded-3xl p-8 text-white text-center shadow-lg relative overflow-hidden">
+                                return (
+                                    <button
+                                        key={pageNumber}
+                                        onClick={() => handlePageChange(`/api/movies?page=${pageNumber}`)}
+                                        className={`w-10 h-10 rounded-md text-sm font-semibold border transition-all ${isActive
+                                                ? "bg-blue-600 text-white border-blue-600 shadow-md scale-105" 
+                                                : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-gray-800"
+                                            }`}
+                                    >
+                                        {pageNumber}
+                                    </button>
+                                );
+                            })}
 
-                    <h2 className="text-2xl md:text-5xl mb-4 mt-10">Subscribe to our newsletter</h2>
+                            <button
+                                disabled={!pagination?.has_next}
+                                onClick={() => handlePageChange(pagination.next)}
+                                className="px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 text-sm font-semibold transition-colors"
+                            >
+                                Next
+                            </button>
 
-                    <div className="flex flex-col md:flex-row md:justify-center gap-3">
-                        <InputField className="md:w-60" placeholder="first name"></InputField>
-                        <InputField className="md:w-60" placeholder="email address"></InputField>
-                        <button className="bg-white text-blue-600 font-bold md:w-60 py-3 rounded-lg mt-2">
-                            Subscribe Now
-                        </button>
-                    </div>
+                        </section>
 
-                    <div className="absolute -bottom-30 -right-20 w-50 h-50 border-4 border-white/80 rounded-full"></div>
-                </section>
-
-                {/* content */}
+                    </>
+                )}
             </section>
+            <Footer></Footer>
         </section>
     )
 }
