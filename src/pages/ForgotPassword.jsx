@@ -112,7 +112,6 @@ function ForgotPassword() {
                         placeholder="Write your new password"
                         {...register('new_password')}
                     />
-
                     <InputField
                         label="Confirm Password"
                         type="password"
