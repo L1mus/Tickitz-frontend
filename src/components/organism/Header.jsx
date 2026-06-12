@@ -71,7 +71,6 @@ function Header() {
             <>
               <NavLink to="/" className={navLinkClass} end>Home</NavLink>
               <NavLink to="/movies" className={navLinkClass}>Movie</NavLink>
-              <NavLink to="/buy-ticket" className={navLinkClass}>Buy Ticket</NavLink>
             </>
           )}
         </nav>
@@ -79,15 +78,23 @@ function Header() {
         <div className="flex items-center gap-4 md:gap-3 z-50">
           {isAuthenticated ? (
             <div className="flex items-center gap-3 relative">
-              <div className="hidden md:flex items-center gap-1 text-medium-normal text-gray-700">
-                Location
-              </div>
-              <img
-                src="/src/assets/icons/icon_dropdown.svg"
-                alt="icon dropdown"
-                className="hidden md:block curso r-pointer hover:opacity-50 transition-opacity"
-              />
-              <img src="/src/assets/icons/search.svg" alt="icon search" className="hidden md:block cursor-pointer" />
+              {!isAdmin && (
+                <>
+                  <div className="hidden md:flex items-center gap-1 text-medium-normal text-gray-700">
+                    Location
+                  </div>
+                  <img
+                    src="/src/assets/icons/icon_dropdown.svg"
+                    alt="icon dropdown"
+                    className="hidden md:block cursor-pointer hover:opacity-50 transition-opacity"
+                  />
+                  <img
+                    src="/src/assets/icons/search.svg"
+                    alt="icon search"
+                    className="hidden md:block cursor-pointer hover:opacity-50"
+                  />
+                </>
+              )}
 
               <img
                 src={profileImage}
@@ -109,7 +116,7 @@ function Header() {
                   )}
                   <button
                     onClick={handleLogout}
-                    className="w-full rounded-md px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    className="w-full rounded-md px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                   >
                     Logout
                   </button>
@@ -145,7 +152,6 @@ function Header() {
               <>
                 <NavLink to="/" onClick={() => setIsMenuOpen(false)} className={mobileNavLinkClass} end>Home</NavLink>
                 <NavLink to="/movies" onClick={() => setIsMenuOpen(false)} className={mobileNavLinkClass}>Movie</NavLink>
-                <NavLink to="/buy-ticket" onClick={() => setIsMenuOpen(false)} className={mobileNavLinkClass}>Buy Ticket</NavLink>
               </>
             )}
 
