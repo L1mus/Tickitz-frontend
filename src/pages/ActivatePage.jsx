@@ -6,6 +6,7 @@ import Stepper from '../components/molecules/Stepper';
 import OtpInput from '../components/molecules/OTP';
 import { activateSlice } from '../redux/slices/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { resendOTPAPI } from '../services/authServices';
 
 
 function ActivatePage() {
@@ -15,7 +16,15 @@ function ActivatePage() {
 
     const [otp, setOtp] = useState(new Array(6).fill(''));
     const inputRefs = useRef([]);
+    const [countdown, setCountdown] = useState(300);
+    const [isResending, setIsResending] = useState(false);
 
+    useEffect(() => {
+        if (countdown > 0) {
+            const timerId = setTimeout(() => setCountdown(countdown - 1), 1000);
+            return () => clearTimeout(timerId);
+        }
+    }, [countdown]);
 
     const handleChange = (value, index) => {
         if (isNaN(value)) return;
@@ -102,6 +111,22 @@ function ActivatePage() {
 
         return () => clearInterval(interval);
     }, [backgrounds.length]);
+    const handleResendOTP = async () => {
+        if (countdown > 0 || isResending) return; 
+
+        setIsResending(true);
+        try {
+            await resendOTPAPI({ email: registeredEmail });
+            toast.success("OTP baru telah dikirim ke email Anda!");
+            setCountdown(60);
+            setOtp(new Array(6).fill(''));
+            if (inputRefs.current[0]) inputRefs.current[0].focus(); 
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Gagal mengirim ulang OTP");
+        } finally {
+            setIsResending(false);
+        }
+    };
     return (
         <>
             <div className='min-h-screen relative flex flex-col items-center justify-center px-4 py-8 font-main'>
@@ -142,6 +167,17 @@ function ActivatePage() {
                             {isLoading ? 'Activation...' : 'Activate Now'}
                         </Button>
                     </form>
+                    <div className="mt-6 text-center text-sm text-darkgrey">
+                        Didn't receive the code?{" "}
+                        <button
+                            type="button"
+                            onClick={handleResendOTP}
+                            disabled={countdown > 0 || isResending}
+                            className={`font-semibold transition-colors ${countdown > 0 || isResending ? 'text-grey cursor-not-allowed' : 'text-primary hover:underline cursor-pointer'}`}
+                        >
+                            {isResending ? 'Sending...' : (countdown > 0 ? `Resend in ${countdown}s` : 'Resend OTP')}
+                        </button>
+                    </div>
                 </main>
             </div>
 
