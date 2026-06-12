@@ -1,18 +1,16 @@
-import CardSettingChoice from "../components/organism/CardSettingChoice"
-import ProfileCard from "../components/organism/ProfileCard"
-import ProfileLayout from "../components/templates/ProfileLayout"
-
-
+import CardSettingChoice from '../components/organism/CardSettingChoice';
+import ProfileCard from '../components/organism/ProfileCard';
+// import ProfileLayout from "../components/templates/ProfileLayout"
 
 function ProfilePage() {
   return (
-    <ProfileLayout>
-        <main className="bg-white md:bg-[#F5F7F8] flex flex-col py-4 px-10 md:p-10 gap-10 justify-center items-center md:flex-row md:items-start">
-            <ProfileCard/>
-            <CardSettingChoice/>
-        </main>
-    </ProfileLayout>
-  )
+    <>
+      <main className="flex flex-col items-center justify-center gap-10 bg-white px-10 py-4 md:flex-row md:items-start md:bg-[#F5F7F8] md:p-10">
+        <ProfileCard />
+        <CardSettingChoice />
+      </main>
+    </>
+  );
 }
 
-export default ProfilePage
+export default ProfilePage;
