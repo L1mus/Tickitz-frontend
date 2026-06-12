@@ -15,11 +15,13 @@ function DonePage() {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            dispatch(clearAuthForce())
             navigate('/auth', { replace: true });
         }, 4000);
 
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            // dispatch(clearAuthForce()); 
+        };
     }, [navigate, dispatch]);
 
     const backgrounds = [

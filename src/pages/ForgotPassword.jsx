@@ -7,6 +7,8 @@ import { useForm } from 'react-hook-form';
 import InputField from '../components/atoms/Input';
 import { Button } from '../components/atoms/Button';
 import Stepper from '../components/molecules/Stepper';
+import { useDispatch,useSelector } from 'react-redux';
+import { resetPasswordSlice,clearResetFlow } from '../redux/slices/authSlice';
 
 const schema = joi.object({
     new_password: joi.string().min(8).required().messages({
@@ -25,17 +27,33 @@ const schema = joi.object({
 });
 function ForgotPassword() {
     const navigate = useNavigate();
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm({
+    const dispatch = useDispatch()
+    const { isLoading, resetPassEmail, isResetOtpVerified } = useSelector((state) => state.auth);
+    const {register,handleSubmit,formState: { errors },} = useForm({
         resolver: joiResolver(schema),
     });
-    const onSubmit = (data) => {
-        console.log('Data Password Baru:', data);
-        toast.success('Password changed successfully!');
-        setTimeout(() => navigate('/auth'), 2000);
+    const onSubmit = async(data) => {
+        try {
+            await dispatch(resetPasswordSlice({
+                email: resetPassEmail,
+                new_password: data.new_password
+            })).unwrap();
+            toast.success('Password changed successfully!', {
+                style: {
+                    border: '1px solid #00D452',
+                    padding: '16px',
+                    color: '#00D452',
+                },
+                iconTheme: {
+                    primary: '#00D452',
+                    secondary: '#FFFAEE',
+                },
+            });
+            dispatch(clearResetFlow());
+            setTimeout(() => navigate('/auth'), 2000);
+        } catch (error) {
+            toast.error(error || "Failed to reset password. Session might be expired.");
+        }
     };
     const backgrounds = [
         '/src/assets/images/bg-auth.svg',
@@ -52,6 +70,11 @@ function ForgotPassword() {
 
         return () => clearInterval(interval);
     }, [backgrounds.length]);
+    // useEffect(() => {
+    //     if (!resetPassEmail || !isResetOtpVerified) {
+    //         toast.error("Unauthorized access. Please verify OTP first.");
+    //     }
+    // }, [resetPassEmail, isResetOtpVerified, navigate]);
 
     return (
         <div className="font-main relative flex min-h-screen flex-col items-center justify-center px-2 py-8">
@@ -89,7 +112,6 @@ function ForgotPassword() {
                         placeholder="Write your new password"
                         {...register('new_password')}
                     />
-
                     <InputField
                         label="Confirm Password"
                         type="password"
@@ -106,14 +128,9 @@ function ForgotPassword() {
                         )}
                     </div>
 
-                    <Button
-                        type="submit"
-                        color="blue"
-                        size="full"
-                        shape="rectangle"
-                        className="hover:bg-blue-800"
+                    <Button type="submit" color="blue"size="full"shape="rectangle" className="hover:bg-blue-800" disabled={isLoading}
                     >
-                        Save
+                        {isLoading ? "Saving..." : "Save"}
                     </Button>
                 </form>
             </main>
