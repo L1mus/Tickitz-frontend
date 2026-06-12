@@ -7,7 +7,7 @@ import { joiResolver } from '@hookform/resolvers/joi';
 import InputField from '../components/atoms/Input';
 import { Button } from '../components/atoms/Button';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginSlice } from '../redux/slices/authSlice';
+import { loginSlice, setRegisteredEmail, clearAuthForce } from '../redux/slices/authSlice';
 
 const schema = joi.object({
     email: joi.string()
@@ -30,12 +30,14 @@ function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: joiResolver(schema)
     });
+    useEffect(() => {
+        dispatch(clearAuthForce());
+    }, [dispatch]);
 
     const onSubmit = (data) => {
         dispatch(loginSlice(data))
             .unwrap()
-            .then(() => {
-                // console.log("Data Login:", data);
+            .then((res) => { 
                 toast.success('Login success', {
                     style: {
                         border: '1px solid #00D452',
@@ -47,10 +49,25 @@ function Login() {
                         secondary: '#FFFAEE',
                     },
                 });
-                navigate('/', { replace: true })
+
+                const userRole = res.data.user.role;
+
+                if (userRole?.toLowerCase() === 'admin') {
+                    navigate('/admin/dashboard', { replace: true });
+                } else {
+                    navigate('/', { replace: true });
+                }
+
             })
             .catch((err) => {
-                toast.error(err || "Login Failed, Try again!");
+                if (err === "ACCOUNT_NOT_ACTIVATED") {
+                    toast.error("Your account is not yet active. A new OTP has been sent to your email!");
+
+                    dispatch(setRegisteredEmail(data.email));
+                    navigate('/auth/register/activate', { replace: true });
+                } else {
+                    toast.error(err || "Login Failed, Try again!");
+                }
             })
     };
     const backgrounds = [
@@ -119,7 +136,7 @@ function Login() {
                         </div>
                         <div className="text-primary cursor-pointer text-right text-sm font-semibold hover:underline">
                             <Link
-                                to="forgotpassword"
+                                to="check-email"
                                 title="Forgot Password"
                             // className="hover:text-primary text-black hover:underline"
                             >

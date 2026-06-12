@@ -14,20 +14,18 @@ import authReducer from "./slices/authSlice.js"
 import movieReducer from "./slices/movieSlice.js"
 // import env from "../utils/environment";
 
-const persistConfig = {
+const authPersistConfig = {
   key: "auth",
   storage,
-  blacklist: ['registeredEmail', 'isActivationSuccess', 'isLoading', 'error'],
+  blacklist: ['registeredEmail', 'isActivationSuccess', 'isLoading', 'error', 'resetPassEmail', 'isResetOtpVerified'],
 };
 const rootReducer = combineReducers({
-  auth: authReducer,
+  auth: persistReducer(authPersistConfig, authReducer),
   movies: movieReducer,
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
-
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: rootReducer,
   // devTools: env.environment === "development",
   middleware: (defaultMiddleware) => {
     return defaultMiddleware({
