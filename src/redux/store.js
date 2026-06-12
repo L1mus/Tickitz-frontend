@@ -12,16 +12,18 @@ import {
 import storage from "redux-persist/es/storage";
 import authReducer from "./slices/authSlice.js"
 import movieReducer from "./slices/movieSlice.js"
+import adminMoviesReducer from "./slices/adminMoviesSlice.js";
 // import env from "../utils/environment";
 
 const authPersistConfig = {
   key: "auth",
   storage,
-  blacklist: ['registeredEmail', 'isActivationSuccess', 'isLoading', 'error', 'resetPassEmail', 'isResetOtpVerified'],
+  blacklist: ['registeredEmail', 'isActivationSuccess', 'isLoading', 'error', 'resetPassEmail', 'isResetOtpVerified', 'adminMovies'],
 };
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   movies: movieReducer,
+  adminMovies: adminMoviesReducer,
 });
 
 export const store = configureStore({
