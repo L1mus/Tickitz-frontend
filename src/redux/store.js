@@ -8,6 +8,10 @@ import {
   PURGE,
   REGISTER,
   REHYDRATE,
+} from "redux-persist";
+import storage from "redux-persist/es/storage";
+import authReducer from "./slices/authSlice.js"
+import userReducer from "./slices/userSlice.js"
 } from 'redux-persist';
 import storage from 'redux-persist/es/storage';
 import authReducer from './slices/authSlice.js';
@@ -21,6 +25,7 @@ import adminMoviesReducer from './slices/adminMoviesSlice.js';
 const authPersistConfig = {
   key: 'auth',
   storage,
+  blacklist: ['user','registeredEmail', 'isActivationSuccess', 'isLoading', 'error'],
   blacklist: [
     'registeredEmail',
     'isActivationSuccess',
@@ -34,6 +39,11 @@ const authPersistConfig = {
   ],
 };
 const rootReducer = combineReducers({
+  auth: authReducer,
+  user: userReducer,
+});
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
   auth: persistReducer(authPersistConfig, authReducer),
   movies: movieReducer,
   adminMovies: adminMoviesReducer,

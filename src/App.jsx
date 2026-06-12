@@ -36,7 +36,7 @@ import TicketResult from './pages/TicketResult';
 function App() {
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster position="top-right" reverseOrder={false} autoClose={3000}/>
       <Routes>
         <Route element={<PublicRoute />}>
           <Route path="auth">

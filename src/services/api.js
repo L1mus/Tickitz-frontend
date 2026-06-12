@@ -8,18 +8,19 @@ const api = axios.create({
     headers: { "Content-Type": "application/json" },
 });
 
-// api.interceptors.request.use(
-//     (config) => {
-//         const state = JSON.parse(localStorage.getItem("persist:ew-DB") || "{}");
-//         const loginState = state.loginReducer ? JSON.parse(state.loginReducer) : null;
-//         const token = loginState?.token;
-//         if (token) {
-//             config.headers.Authorization = `Bearer ${token}`;
-//         }
-//         return config;
-//     },
-//     (error) => Promise.reject(error),
-// );
+api.interceptors.request.use(
+    (config) => {
+        const state = JSON.parse(localStorage.getItem("persist:auth") || "{}");
+        const loginState = state.auth ? JSON.parse(state.auth) : null;
+        const token = loginState?.token;
+        console.log(token)
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error),
+);
 
 // api.interceptors.response.use(
 //     (response) => response,
