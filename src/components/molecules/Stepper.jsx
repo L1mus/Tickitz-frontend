@@ -1,36 +1,54 @@
-import React from "react";
-
-const Stepper = ({ steps, activeStep }) => {
+const Stepper = ({ steps = [], activeStep = 0, showCheck = false }) => {
   return (
-    <div className="flex items-center justify-between mb-16">
-      {steps.map((step, index) => (
-        <React.Fragment key={index}>
-          <div className="flex relative flex-col items-center justify-center">
+    <div className="relative flex w-full items-center justify-between">
+      {/* Dashed line background step */}
+      <div className="absolute top-6 right-0 left-0 z-0 border-t-2 border-dashed border-gray-300"></div>
+
+      {steps.map((step, index) => {
+        const isCompleted = index < activeStep;
+        const isActive = index === activeStep;
+
+        return (
+          <div
+            key={index}
+            className="relative z-10 flex flex-col items-center justify-center bg-[#F5F6F8] px-2"
+          >
             <div
-              className={
-                `w-12 h-12 rounded-full flex items-center justify-center text-sm font-normal text-white transition-colors z-10 relative
-                ${index === activeStep ? "bg-primary" : "bg-grey"}`}
+              className={`flex h-12 w-12 items-center justify-center rounded-full text-base font-semibold text-white transition-colors ${
+                isCompleted
+                  ? 'bg-[#00BA88]'
+                  : isActive
+                    ? 'bg-blue-700'
+                    : 'bg-gray-300 text-gray-600'
+              }`}
             >
-              {index + 1}
+              {isCompleted && showCheck ? (
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              ) : (
+                index + 1
+              )}
             </div>
             <span
-              className={
-                `absolute top-12 sm:top-14 w-24 text-center text-[10px] sm:text-sm font-medium transition-colors ${index === activeStep ? "text-primary" : "text-gray-500"}`}
+              className={`mt-3 text-sm font-medium transition-colors ${
+                isActive ? 'text-gray-900' : 'text-gray-500'
+              }`}
             >
               {step}
             </span>
           </div>
-          {index < steps.length - 1 && (
-            <div
-              className="w-8 sm:w-16 border-t-2 border-dashed border-grey mx-1 sm:mx-2"
-            />
-          )}
-
-          {/* {index < steps.length - 1 && (
-            <div className="w-10 sm:w-16 border-t-[1.5px] border-dashed border-gray-400 mx-1 md:mx-3 hidden sm:block" />
-          )} */}
-        </React.Fragment>
-      ))}
+        );
+      })}
     </div>
   );
 };
