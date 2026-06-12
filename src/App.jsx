@@ -1,25 +1,38 @@
 // import React from "react";
-import { Routes, Route } from "react-router-dom";
-import Login from "./pages/Login"
-import Register from "./pages/Register";
-import ActivatePage from "./pages/ActivatePage";
-import CheckEmail from "./pages/CheckEmail";
-import VerifyOtp from "./pages/CheckOTP";
-import Reset from "./pages/ForgotPassword"
-import Done from "./pages/Done";
-import ProfilePage from "./pages/ProfilePage";
+import { Routes, Route } from 'react-router-dom';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ActivatePage from './pages/ActivatePage';
+import CheckEmail from './pages/CheckEmail';
+import VerifyOtp from './pages/CheckOTP';
+import Reset from './pages/ForgotPassword';
+import Done from './pages/Done';
+import ProfilePage from './pages/ProfilePage';
 // import ProfileLayout from "./components/templates/ProfileLayout";
-import MainLayout from "./components/templates/MainLayout";
-import LandingPage from "./pages/LandingPage"
-import MovieList from "./pages/MovieList";
-import { Toaster } from "react-hot-toast";
-import Dashboard from "./pages/Dashboard";
-import ListMovie from "./pages/ListMovie";
-import AddMovie from "./pages/AddMovie";
-import { RequireRegistration, RequireActivationSuccess } from "./components/ProtectedRoute";
-import { OtpProtectedRoute, ResetPasswordProtectedRoute } from "./components/ProtectedRoute";
-import { RequireAuth, RequireAdmin, PreventAdmin } from "./components/ProtectedRoute";
-import PublicRoute from "./components/PublicRoute";
+import MainLayout from './components/templates/MainLayout';
+import LandingPage from './pages/LandingPage';
+import MovieList from './pages/MovieList';
+import { Toaster } from 'react-hot-toast';
+import Dashboard from './pages/Dashboard';
+import ListMovie from './pages/ListMovie';
+import AddMovie from './pages/AddMovie';
+import {
+  RequireRegistration,
+  RequireActivationSuccess,
+} from './components/ProtectedRoute';
+import {
+  OtpProtectedRoute,
+  ResetPasswordProtectedRoute,
+} from './components/ProtectedRoute';
+import {
+  RequireAuth,
+  RequireAdmin,
+  PreventAdmin,
+} from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
+import OrderPage from './pages/Order';
+import Payment from './pages/Payment';
+import TicketResult from './pages/TicketResult';
 function App() {
   return (
     <>
@@ -47,6 +60,12 @@ function App() {
                   <Route element={<ResetPasswordProtectedRoute />}>
                     <Route path="reset" element={<Reset />} />
                   </Route>
+                  <Route path="order" element={<OrderPage />} />
+                  <Route path="payment/:bookingId" element={<Payment />} />
+                  <Route
+                    path="result/:transactionId"
+                    element={<TicketResult />}
+                  />
                 </Route>
               </Route>
             </Route>
@@ -73,11 +92,10 @@ function App() {
               <Route path="add-movie" element={<AddMovie />} />
             </Route>
           </Route>
-
         </Route>
         {/* <Route path="dashboard" element={<Dashboard />} />
         <Route path='profile' element={<ProfilePage />} /> */}
-      </Routes >
+      </Routes>
     </>
   );
 }
