@@ -4,6 +4,9 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux"
 import { updateProfileSlice } from "../../redux/slices/userSlice";
+import starIcon from "../../assets/images/star.svg"
+import moreIcon from "../../assets/icons/more.svg" 
+import photoDefault from "../../assets/icons/user.png"
 
 
 const photoSchema = Joi.object({
@@ -87,7 +90,7 @@ function ProfileCard() {
 
     const photoImg = currentUser?.photo
         ? `${ASSET_URL}${currentUser.photo}`
-        : "src/assets/icons/user.png"
+        : photoDefault
 
 
 
@@ -95,7 +98,7 @@ function ProfileCard() {
     <section className="bg-white w-full md:flex-2/5 flex flex-col gap-7 rounded-lg py-8 px-10 md:p-10">
         <div className="flex justify-between mb-8">
             <span>INFO</span>
-            <img src="src\assets\icons\more.svg" alt="more" />
+            <img src={moreIcon} alt="more" />
         </div>
 
         <div className="flex justify-center relative">
@@ -142,7 +145,7 @@ function ProfileCard() {
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute bg-[#FFFFFF4D] rounded-full w-32 h-32 right-0 bottom-25 translate-x-8"></div>
           <div className="absolute bg-[#FFFFFF4D] rounded-full w-32 h-32 right-0 bottom-20 translate-x-15 "></div>
-          <img src="src\assets\images\star.svg" alt="star" className="absolute right-0" />
+          <img src={starIcon} alt="star" className="absolute right-0" />
         </div>   
         </div>
 
