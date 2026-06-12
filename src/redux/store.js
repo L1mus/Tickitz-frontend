@@ -1,4 +1,4 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import {
   persistStore,
   persistReducer,
@@ -8,22 +8,37 @@ import {
   PURGE,
   REGISTER,
   REHYDRATE,
-} from "redux-persist";
-import storage from "redux-persist/es/storage";
-import authReducer from "./slices/authSlice.js"
-import movieReducer from "./slices/movieSlice.js"
-import adminMoviesReducer from "./slices/adminMoviesSlice.js";
+} from 'redux-persist';
+import storage from 'redux-persist/es/storage';
+import authReducer from './slices/authSlice.js';
+import movieReducer from './slices/movieSlice.js';
+import transactionReducer from './slices/transactionSlice.js';
+import orderReducer from './slices/orderSlice.js';
+
+import adminMoviesReducer from './slices/adminMoviesSlice.js';
 // import env from "../utils/environment";
 
 const authPersistConfig = {
-  key: "auth",
+  key: 'auth',
   storage,
-  blacklist: ['registeredEmail', 'isActivationSuccess', 'isLoading', 'error', 'resetPassEmail', 'isResetOtpVerified', 'adminMovies'],
+  blacklist: [
+    'registeredEmail',
+    'isActivationSuccess',
+    'isLoading',
+    'error',
+    'resetPassEmail',
+    'isResetOtpVerified',
+    'adminMovies',
+    'order',
+    'transaction',
+  ],
 };
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   movies: movieReducer,
   adminMovies: adminMoviesReducer,
+  transaction: transactionReducer,
+  order: orderReducer,
 });
 
 export const store = configureStore({
