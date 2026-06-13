@@ -7,14 +7,21 @@ import { logoutSlice } from '../../redux/slices/authSlice';
 import { Modal } from './Modal';
 import { NavLink, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
+import photoDefault from '../../assets/icons/user.png';
+
 
 function Header() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { isAuthenticated, role, isLoading, currentUser } = useSelector((state) => state.auth);
+  const { isAuthenticated, role, isLoading, currentUser: authUser } = useSelector((state) => state.auth);
+  const { currentUser: profileUser } = useSelector((state) => state.user);
+  const currentUser = (profileUser && profileUser.photo) ? profileUser : authUser;
   const isAdmin = role === 'admin';
-  const defaultAvatar = "/images/default.jpg" || "../../assets/icons/user.png";
-  const profileImage = currentUser?.profile_image || defaultAvatar;
+  const ASSET_URL = import.meta.env.VITE_ASSET_URL || 'http://localhost:8080';
+  const defaultAvatar = photoDefault;
+  const profileImage = currentUser?.photo 
+    ? `${ASSET_URL}${currentUser.photo}` 
+    : defaultAvatar;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -237,6 +244,10 @@ function Header() {
                   src={profileImage}
                   alt="profile"
                   onClick={toggleDropdown}
+                  onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = defaultAvatar;
+                }}
                   className="h-10 w-10 rounded-full border border-gray-200 object-cover cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
                 />
 
