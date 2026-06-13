@@ -11,6 +11,6 @@ export const detailAPI = async (id) => {
 }
 
 export const booksAPI = async (id) => {
-    const response = await api.get(`/movies/${id}/showtime`)
+    const response = await api.get(`/movies/${id}/showtimes`)
     return response;
 }

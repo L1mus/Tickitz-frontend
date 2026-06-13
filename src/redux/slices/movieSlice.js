@@ -94,7 +94,6 @@ const movieSlice = createSlice({
             state.loading = false;
             const { data, meta, status } = action.payload;
 
-            // Meta sekarang sudah aman terisi dan tidak undefined lagi
             if (status === "now_showing") {
                 state.nowShowingMovies = data || [];
                 state.nowShowingPagination = meta || {};
