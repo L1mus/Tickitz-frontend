@@ -12,24 +12,24 @@ function MovieList() {
 
     const [search, setSearch] = useState("");
     const [activeGenre, setActiveGenre] = useState("");
-    const [page, setPage] = useState(1); 
-    const API_URL ="http://localhost:8080/"
+    const [page, setPage] = useState(1);
+    const API_URL = "http://localhost:8080/img/"
 
     const genresList = ["Thriller", "Horror", "Romantic", "Adventure", "Sci-Fi"];
 
-useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {        
-        dispatch(getMovie({ 
-            search, 
-            genre: activeGenre, 
-     //     status: "now_showing", opsional jika ingin menampilkan hanya film yang tayang bulan ini
-            page 
-        }));
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            dispatch(getMovie({
+                search,
+                genre: activeGenre,
+                //     status: "now_showing", opsional jika ingin menampilkan hanya film yang tayang bulan ini
+                page
+            }));
 
-    }, 300); 
+        }, 300);
 
-    return () => clearTimeout(delayDebounceFn);
-}, [dispatch, search, activeGenre, page]); 
+        return () => clearTimeout(delayDebounceFn);
+    }, [dispatch, search, activeGenre, page]);
 
     const handlePageChange = (targetUrl) => {
         if (!targetUrl) return;
@@ -38,7 +38,7 @@ useEffect(() => {
         if (queryString) {
             const urlParams = new URLSearchParams(queryString);
             const pageNumber = urlParams.get('page') || '1';
-            
+
             setPage(parseInt(pageNumber, 10));
         }
     };
@@ -54,7 +54,7 @@ useEffect(() => {
 
     const handleSearchChange = (e) => {
         setSearch(e.target.value);
-        setPage(1); 
+        setPage(1);
     };
 
     function HeroBanner() {
@@ -212,7 +212,7 @@ useEffect(() => {
                             </button>
 
                             {Array.from({ length: pagination?.total_page || 1 }, (_, index) => {
-                                const pageNumber = index + 1; 
+                                const pageNumber = index + 1;
 
                                 const isActive = pagination?.current_page === pageNumber;
 
@@ -221,8 +221,8 @@ useEffect(() => {
                                         key={pageNumber}
                                         onClick={() => handlePageChange(`/api/movies?page=${pageNumber}`)}
                                         className={`w-10 h-10 rounded-md text-sm font-semibold border transition-all ${isActive
-                                                ? "bg-blue-600 text-white border-blue-600 shadow-md scale-105" 
-                                                : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-gray-800"
+                                            ? "bg-blue-600 text-white border-blue-600 shadow-md scale-105"
+                                            : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-gray-800"
                                             }`}
                                     >
                                         {pageNumber}

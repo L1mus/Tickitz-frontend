@@ -3,7 +3,7 @@ function Footer({ padding }) {
         <section className={`${padding}py-8 px-5 md:px-20 md:py-0 lg:px-24`}>
             <section className="grid md:grid-cols-2 md:gap-x-2 lg:grid-cols-6">
                 <div className="py-10 md:pt-8 lg:col-span-2 lg:w-80">
-                    <img src="/src/assets/images/Tickitz-blue.svg" className="w-45" alt="" />
+                    <img src="/src/assets/images/Tickitz 2.png" className="w-45" alt="" />
                     <p className="text-gray-500 text-normal">Stop waiting in line. Buy tickets
                         conveniently, watch movies quietly.</p>
                 </div>

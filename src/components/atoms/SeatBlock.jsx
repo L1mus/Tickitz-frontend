@@ -1,53 +1,53 @@
-function getSeatStyle(seat, isSelected) {
-  if (!seat) return '';
-  if (seat.status === 'Sold')
-    return 'bg-[#4E4B66] cursor-not-allowed opacity-80';
-  if (isSelected) return 'bg-primary cursor-pointer';
-  if (seat.seatType === 'love_nest')
-    return 'bg-[#F589D7] cursor-pointer hover:opacity-75';
-  return 'bg-[#D0D0E8] cursor-pointer hover:bg-primary/40';
-}
-
-export default function SeatBlock({
-  rows,
-  cols,
-  seats,
-  selectedIds,
-  onToggle,
-  displayRow,
-}) {
-  const getSeat = (row, col) =>
-    seats.find((s) => s.row === row && s.seatNumber === col);
+export default function SeatBlock({ row, cols, seats, selectedIds, onToggle }) {
+  
+  const getSeatStyle = (seat, isSelected) => {
+    if (!seat) return 'bg-transparent pointer-events-none';
+    if (seat.status === 'Sold') return 'bg-gray-300 cursor-not-allowed opacity-40';
+    if (isSelected) return 'bg-[#5F2EEA] shadow-[0_2px_8px_rgba(95,46,234,0.4)]';
+    if (seat.seatType && seat.seatType.includes('love')) return 'bg-pink-400 hover:bg-pink-500';
+    
+    return 'bg-[#D0D0E8] hover:bg-[#5F2EEA]/30';
+  };
 
   return (
-    <div className="flex flex-col gap-1.5">
-      {rows.map((row) => (
-        <div key={row} className="flex gap-1.5">
-          {cols.map((col) => {
-            const seat = getSeat(row, col);
-            const isSelected = selectedIds.includes(seat?.id);
-            return (
-              <button
-                key={col}
-                type="button"
-                disabled={seat?.status === 'Sold'}
-                onClick={() => seat && seat.status !== 'Sold' && onToggle(seat)}
-                title={seat ? `${displayRow}${col}` : ''}
-                className={`h-7 w-7 rounded-sm transition-colors ${getSeatStyle(seat, isSelected)} `}
-              />
-            );
-          })}
-        </div>
-      ))}
+    <div className="flex gap-2">
+      {cols.map((col) => {
+        const seat = seats.find(
+          (s) => s.row.toUpperCase() === row.toUpperCase() && s.seatNumber === col
+        );
+        const isSelected = seat ? selectedIds.includes(seat.id) : false;
 
-      {/* Nomor kolom */}
-      <div className="mt-1 flex gap-1.5">
-        {cols.map((col) => (
-          <span key={col} className="w-7 text-center text-[11px] text-gray-400">
-            {col}
-          </span>
-        ))}
-      </div>
+        let shapeClass = 'rounded-md';
+        let spacingClass = '';
+
+        if (seat?.seatType && seat.seatType.includes('love')) {
+          const isLeftPart = col % 2 !== 0;
+          
+          if (isLeftPart) {
+            shapeClass = 'rounded-l-xl rounded-r-none border-r border-black/5 z-10';
+          } else {
+            shapeClass = 'rounded-r-xl rounded-l-none border-l border-black/5 z-0';
+            spacingClass = '-ml-2'; 
+          }
+        }
+
+        return (
+          <button
+            key={`${row}-${col}`}
+            type="button"
+            disabled={!seat || seat.status === 'Sold'}
+            onClick={() => seat && onToggle(seat)}
+            title={seat ? `${seat.row.toUpperCase()}${seat.seatNumber} (${seat.seatType})` : 'Empty'}
+            className={`h-7 w-7 transition-all flex items-center justify-center text-transparent text-[0px] select-none
+              ${shapeClass}
+              ${spacingClass}
+              ${getSeatStyle(seat, isSelected)}
+            `}
+          >
+            {row}{col}
+          </button>
+        );
+      })}
     </div>
   );
 }

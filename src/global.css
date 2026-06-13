@@ -1,4 +1,5 @@
 @import "@fontsource/mulish";
+@import "@fontsource/mulish/700.css";
 @import "tailwindcss";
 
 @theme {

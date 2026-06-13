@@ -60,12 +60,6 @@ function App() {
                   <Route element={<ResetPasswordProtectedRoute />}>
                     <Route path="reset" element={<Reset />} />
                   </Route>
-                  <Route path="order" element={<OrderPage />} />
-                  <Route path="payment/:bookingId" element={<Payment />} />
-                  <Route
-                    path="result/:transactionId"
-                    element={<TicketResult />}
-                  />
                 </Route>
               </Route>
             </Route>
@@ -82,6 +76,9 @@ function App() {
           <Route path="users" element={<RequireAuth />}>
             <Route path="profile" element={<ProfilePage />} />
             {/* <Route path="profile" element={<ProfilePage />} /> */}
+            <Route path="payment/:bookingId" element={<Payment />} />
+            <Route path="order" element={<OrderPage />} /> 
+            <Route path="result/:transactionId" element={<TicketResult />} />
           </Route>
 
           {/* ini rute admin nantinya */}
@@ -95,6 +92,7 @@ function App() {
         </Route>
         {/* <Route path="dashboard" element={<Dashboard />} />
         <Route path='profile' element={<ProfilePage />} /> */}
+
       </Routes>
     </>
   );

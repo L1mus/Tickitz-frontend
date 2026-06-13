@@ -12,7 +12,7 @@
         const navigate = useNavigate()
         const dispatch = useDispatch();
         const { movieList, upcomingMovies, nowShowingMovies, loading, error } = useSelector((state) => state.movies)
-        const API_URL ="http://localhost:8080/"
+        const API_URL ="http://localhost:8080/img/"
 
         useEffect(() => {
             dispatch(getMovie({ status: "now_showing", limit: 4 }));

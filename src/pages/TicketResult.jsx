@@ -5,6 +5,7 @@ import { getTicketResult } from '../redux/slices/transactionSlice';
 
 const TicketResult = () => {
   const { transactionId } = useParams();
+  
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -44,9 +45,9 @@ const TicketResult = () => {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-[#F5F6F8] font-sans antialiased">
-      <div className="grid w-full flex-1 grid-cols-1 lg:grid-cols-7">
-        <div className="relative flex min-h-[45vh] flex-col justify-between bg-gray-900 p-8 md:p-16 lg:col-span-4 lg:min-h-0">
+    <div className="flex min-h-screen w-full flex-col bg-[#F5F6F8] antialiased print:bg-white print:min-h-0 print:block">
+      <div className="grid w-full flex-1 grid-cols-1 lg:grid-cols-7 print:block">
+        <div className="relative flex min-h-[45vh] flex-col justify-between bg-gray-900 p-8 md:p-16 lg:col-span-4 lg:min-h-0 print:hidden">
           {/* Background Poster Overlay */}
           <div className="absolute inset-0 z-0">
             <img
@@ -90,15 +91,11 @@ const TicketResult = () => {
             </a>
           </div>
         </div>
-
-        {/* =========================================================================
-            SISI KANAN: SPAN 3 (Komponen Tiket Fisik Sesuai Gambar Referensi Baru)
-           ========================================================================= */}
         <div
           id="ticket-view"
-          className="flex flex-col items-center justify-center bg-[#F5F6F8] p-6 md:p-12 lg:col-span-3"
+          className="flex flex-col items-center justify-center bg-[#F5F6F8] p-6 md:p-12 lg:col-span-3 print:p-0 print:bg-white print:pt-50 "
         >
-          <div className="relative flex w-full max-w-72.5 flex-col overflow-hidden rounded-2xl bg-white shadow-lg">
+          <div className="relative flex w-full max-w-72.5 flex-col overflow-hidden rounded-2xl bg-white shadow-lg print:shadow-none print:border-2 print:border-darkgrey">
             <div className="flex justify-center bg-white pt-8 pb-6">
               <div className="flex h-36 w-36 items-center justify-center">
                 <img
@@ -116,7 +113,7 @@ const TicketResult = () => {
             {/* Garis Sobekan Gunting Tengah (Dot Lingkaran & Dashed Line) */}
             <div className="relative flex h-4 w-full items-center bg-white">
               <div className="absolute -left-2 h-4 w-4 rounded-full bg-[#F5F6F8]" />
-              <div className="mx-4 w-full border-t border-dashed border-gray-200" />
+              <div className="mx-4 w-full border-t border-dashed border-darkgrey" />
               <div className="absolute -right-2 h-4 w-4 rounded-full bg-[#F5F6F8]" />
             </div>
 
@@ -124,7 +121,7 @@ const TicketResult = () => {
             <div className="flex-1 bg-white px-6 pt-5 pb-5 font-sans text-[11px]">
               <div className="relative grid grid-cols-2 gap-y-4">
                 {/* GARIS PUTUS-PUTUS VERTIKAL UTAMA (HANYA DI TENGAH) */}
-                <div className="absolute inset-y-0 left-1/2 ml-[-0.5px] border-l border-dashed border-gray-200" />
+                <div className="absolute inset-y-0 left-1/2 ml-[-0.5px] " />
 
                 {/* Kolom 1 (Movie) */}
                 <div className="pr-2">
@@ -171,7 +168,7 @@ const TicketResult = () => {
                     Count
                   </span>
                   <span className="mt-0.5 block font-bold text-gray-800">
-                    {ticket?.ticket_count} pcs {/* SEBELUMNYA: TicketCount */}
+                    {ticket?.ticket_count} pcs
                   </span>
                 </div>
                 {/* Kolom 6 (Seats) */}
@@ -185,7 +182,7 @@ const TicketResult = () => {
                 </div>
               </div>
 
-              {/* HARGA TOTAL DI BAGIAN BAWAH TIKET (Clean & Minimalis) */}
+              {/* HARGA TOTAL DI BAGIAN BAWAH TIKET */}
               <div className="mt-6 flex items-center justify-between border-t border-gray-100 pt-4 text-xs font-semibold">
                 <span className="font-medium text-gray-800">Total</span>
                 <span className="text-sm font-bold text-gray-900">
@@ -200,7 +197,7 @@ const TicketResult = () => {
             </div>
           </div>
 
-          <div className="mt-6 flex w-full max-w-72.5 flex-col gap-3">
+          <div className="mt-6 flex w-full max-w-72.5 flex-col gap-3 print:hidden">
             <button
               onClick={() => window.print()}
               className="flex w-full items-center justify-center gap-2 rounded-lg border border-blue-600 bg-white px-6 py-3 text-xs font-bold text-blue-600 transition-all hover:bg-gray-50"

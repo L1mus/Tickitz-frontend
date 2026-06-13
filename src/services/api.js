@@ -1,19 +1,16 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 // const BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 const api = axios.create({
     baseURL: BASE_URL,
     headers: { "Content-Type": "application/json" },
 });
-
 api.interceptors.request.use(
     (config) => {
-        const authState = JSON.parse(localStorage.getItem("persist:auth") || "{}");
-        // const loginState = authstate.auth ? JSON.parse(authstate.auth) : null;
-        const token = authState?.token;
-        console.log(token)
+        const state = JSON.parse(localStorage.getItem("persist:auth") || "{}");
+        const token = JSON.parse(state.token || "{}");
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -22,15 +19,15 @@ api.interceptors.request.use(
     (error) => Promise.reject(error),
 );
 
-// api.interceptors.response.use(
-//     (response) => response,
-//     (error) => {
-//         if (error.response?.status === 401) {
-//             localStorage.removeItem("persist:ew-DB");
-//             window.location.href = "/auth/login";
-//         }
-//         return Promise.reject(error);
-//     },
-// );
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem("persist:auth");
+            window.location.href = "/auth/login";
+        }
+        return Promise.reject(error);
+    },
+);
 
 export default api;

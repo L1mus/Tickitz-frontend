@@ -25,9 +25,7 @@ export const createBooking = createAsyncThunk(
       const status = err.response?.status;
       const message = err.response?.data?.message;
       if (status === 406) {
-        return rejectWithValue(
-          message ?? 'One or more seats are already taken'
-        );
+        return rejectWithValue(message ?? 'One or more seats are already taken');
       }
       return rejectWithValue(message ?? 'Failed to make a booking');
     }
@@ -53,45 +51,46 @@ const orderSlice = createSlice({
   name: 'order',
   initialState,
   reducers: {
-    toggleSeat(state, action) {
+    toggleSeat: (state, action) => {
       const seat = action.payload;
-      const idx = state.selectedSeats.findIndex(
-        (s) => s.seat_id === seat.seat_id
-      );
-      if (idx === -1) {
-        state.selectedSeats.push(seat);
-      } else {
-        state.selectedSeats.splice(idx, 1);
-      }
-    },
-    toggleLoveNestPair(state, action) {
-      const { seats, action: act } = action.payload;
-      if (act === 'deselect') {
-        const ids = seats.map((s) => s.seat_id);
-        state.selectedSeats = state.selectedSeats.filter(
-          (s) => !ids.includes(s.seat_id)
+      const isLoveNest = seat.seatType && seat.seatType.toLowerCase().includes('love');
+      if (isLoveNest) {
+        const isOdd = seat.seatNumber % 2 !== 0;
+        const partnerNumber = isOdd ? seat.seatNumber + 1 : seat.seatNumber - 1;
+
+        const partnerSeat = state.seatPage.seats.find(
+          (s) => s.row.toUpperCase() === seat.row.toUpperCase() && s.seatNumber === partnerNumber
         );
-      } else {
-        seats.forEach((seat) => {
-          const exists = state.selectedSeats.some(
-            (s) => s.seat_id === seat.seat_id
+
+        const isAlreadySelected = state.selectedSeats.some((s) => s.id === seat.id);
+
+        if (isAlreadySelected) {
+          state.selectedSeats = state.selectedSeats.filter(
+            (s) => s.id !== seat.id && (partnerSeat ? s.id !== partnerSeat.id : true)
           );
-          if (!exists) state.selectedSeats.push(seat);
-        });
+        } else {
+          if (seat.status !== 'Sold' && (!partnerSeat || partnerSeat.status !== 'Sold')) {
+            state.selectedSeats.push(seat);
+            if (partnerSeat) state.selectedSeats.push(partnerSeat);
+          }
+        }
+      } else {
+        const isAlreadySelected = state.selectedSeats.some((s) => s.id === seat.id);
+        if (isAlreadySelected) {
+          state.selectedSeats = state.selectedSeats.filter((s) => s.id !== seat.id);
+        } else {
+          if (seat.status !== 'Sold') state.selectedSeats.push(seat);
+        }
       }
     },
-    clearSelectedSeats(state) {
+    clearSelectedSeats: (state) => {
       state.selectedSeats = [];
     },
-    resetBooking(state) {
+    resetBooking: (state) => {
       state.booking = initialState.booking;
-    },
-    resetSeatPage(state) {
-      state.seatPage = initialState.seatPage;
     },
   },
   extraReducers: (builder) => {
-    // getSeatPage
     builder
       .addCase(getSeatPage.pending, (state) => {
         state.seatPage.loading = true;
@@ -100,39 +99,20 @@ const orderSlice = createSlice({
       .addCase(getSeatPage.fulfilled, (state, action) => {
         state.seatPage.loading = false;
         state.seatPage.summary = action.payload.summary;
-        state.seatPage.seats = action.payload.seats;
+        state.seatPage.seats = (action.payload.seats || []).map((seat) => ({
+          id: seat.seat_id,
+          row: seat.row,
+          seatNumber: seat.seat_number,
+          seatType: seat.seat_type ? seat.seat_type.toLowerCase() : 'regular',
+          status: seat.seat_status === 'sold' || seat.seat_status === 'Sold' ? 'Sold' : 'Available',
+        }));
       })
       .addCase(getSeatPage.rejected, (state, action) => {
         state.seatPage.loading = false;
         state.seatPage.error = action.payload;
       });
-    // createBooking
-    builder
-      .addCase(createBooking.pending, (state) => {
-        state.booking.loading = true;
-        state.booking.error = null;
-      })
-      .addCase(createBooking.fulfilled, (state, action) => {
-        state.booking.loading = false;
-        state.booking.bookingId = action.payload.booking_id;
-      })
-      .addCase(createBooking.rejected, (state, action) => {
-        state.booking.loading = false;
-        state.booking.error = action.payload;
-      });
   },
 });
 
-export const {
-  toggleSeat,
-  toggleLoveNestPair,
-  clearSelectedSeats,
-  resetBooking,
-  resetSeatPage,
-} = orderSlice.actions;
-
-export const selectSeatPage = (state) => state.order.seatPage;
-export const selectSelectedSeats = (state) => state.order.selectedSeats;
-export const selectBooking = (state) => state.order.booking;
-
+export const { toggleSeat, clearSelectedSeats, resetBooking } = orderSlice.actions;
 export default orderSlice.reducer;
