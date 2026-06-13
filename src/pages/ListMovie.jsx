@@ -5,7 +5,7 @@ import { Button } from '../components/atoms/Button';
 import { fetchMoviesThunk } from '../redux/slices/adminMoviesSlice';
 import toast from 'react-hot-toast';
 
-const BACKEND_URL = "http://localhost:8080/img/" ;
+// const BACKEND_URL = "http://localhost:8080/img/" ;
 
 function ListMovie() {
   const navigate = useNavigate();
@@ -210,7 +210,7 @@ function ListMovie() {
                       const imagePath = movie.poster_url || movie.poster;
                       const finalImageUrl = imagePath?.startsWith('http')
                         ? imagePath
-                        : `${BACKEND_URL}${imagePath}`;
+                        : `${imagePath}`;
                       return (
                         <tr
                           key={movie.id}

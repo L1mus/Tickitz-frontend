@@ -13,7 +13,7 @@ function MovieList() {
     const [search, setSearch] = useState("");
     const [activeGenre, setActiveGenre] = useState("");
     const [page, setPage] = useState(1);
-    const API_URL = "http://localhost:8080/img/"
+    // const API_URL = "http://localhost:8080/img/"
 
     const genresList = ["Thriller", "Horror", "Romantic", "Adventure", "Sci-Fi"];
 
@@ -196,7 +196,7 @@ function MovieList() {
                         <section className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 my-5 w-full max-w-6xl mx-auto">
                             {movieList?.map((m) => (
                                 <div key={m.id} className="w-full">
-                                    <MovieCard id={m.id} poster={`${API_URL}${m.poster}`} title={m.title} genres={m.genres} />
+                                    <MovieCard id={m.id} poster={`${m.poster}`} title={m.title} genres={m.genres} />
                                 </div>
                             ))}
                         </section>

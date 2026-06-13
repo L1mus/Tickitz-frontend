@@ -12,7 +12,6 @@
         const navigate = useNavigate()
         const dispatch = useDispatch();
         const { movieList, upcomingMovies, nowShowingMovies, loading, error } = useSelector((state) => state.movies)
-        const API_URL ="http://localhost:8080/img/"
 
         useEffect(() => {
             dispatch(getMovie({ status: "now_showing", limit: 4 }));
@@ -127,7 +126,7 @@
                                     >
                                         <MovieCard
                                             id={m.id}
-                                            poster={`${API_URL}${m.poster}`}
+                                            poster={`${m.poster}`}
                                             title={m.title}
                                             genres={m.genres}
                                         />

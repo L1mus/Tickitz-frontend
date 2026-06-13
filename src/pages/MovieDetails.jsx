@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { getMovieDetail, getMovieShowtime } from "../redux/slices/movieSlice";
 
-const API_URL = "http://localhost:8080/img/";
+// const API_URL = "http://localhost:8080/img/";
 
 const groupShowtimesByCinema = (showtimeList) => {
     if (!showtimeList || showtimeList.length === 0) return [];
@@ -16,7 +16,7 @@ const groupShowtimesByCinema = (showtimeList) => {
             acc[cinemaId] = {
                 id: cinemaId,
                 name: curr.cinema_name,
-                logo: curr.cinema_logo ? `${API_URL}${curr.cinema_logo}` : "",
+                logo: curr.cinema_logo ? `${curr.cinema_logo}` : "",
                 city: curr.city?.toLowerCase(),
                 schedules: [],
             };

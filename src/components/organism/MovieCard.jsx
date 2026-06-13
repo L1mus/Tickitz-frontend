@@ -18,6 +18,7 @@ function MovieCard({ id, poster, title, release, genres, onDetail, onBuyTicket }
         }
     };
 
+
     return (
         <div onClick={() => navigate(`/movies/${id}`)}
             className="w-full flex flex-col cursor-pointer group">
