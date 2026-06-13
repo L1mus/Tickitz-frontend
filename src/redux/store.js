@@ -1,31 +1,49 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import {
   persistStore,
-  persistCombineReducers,
+  persistReducer,
   FLUSH,
   PAUSE,
   PERSIST,
   PURGE,
   REGISTER,
   REHYDRATE,
-} from "redux-persist";
-import storage from "redux-persist/es/storage";
-import env from "../utils/environment";
+} from 'redux-persist';
+import storage from 'redux-persist/es/storage';
+import authReducer from './slices/authSlice.js';
+import movieReducer from './slices/movieSlice.js';
+import transactionReducer from './slices/transactionSlice.js';
+import orderReducer from './slices/orderSlice.js';
 
-const persistConfig = {
-  key: "ew-DB",
+import adminMoviesReducer from './slices/adminMoviesSlice.js';
+// import env from "../utils/environment";
+
+const authPersistConfig = {
+  key: 'auth',
   storage,
-  whitelist: [],
-  blacklist: [],
+  blacklist: [
+    'registeredEmail',
+    'isActivationSuccess',
+    'isLoading',
+    'error',
+    'resetPassEmail',
+    'isResetOtpVerified',
+    'adminMovies',
+    'order',
+    'transaction',
+  ],
 };
-
-const persistedReducer = persistCombineReducers(persistConfig, {
-
+const rootReducer = combineReducers({
+  auth: persistReducer(authPersistConfig, authReducer),
+  movies: movieReducer,
+  adminMovies: adminMoviesReducer,
+  transaction: transactionReducer,
+  order: orderReducer,
 });
 
-const store = configureStore({
-  reducer: persistedReducer,
-  devTools: env.environment === "development",
+export const store = configureStore({
+  reducer: rootReducer,
+  // devTools: env.environment === "development",
   middleware: (defaultMiddleware) => {
     return defaultMiddleware({
       serializableCheck: {
@@ -36,4 +54,4 @@ const store = configureStore({
 });
 
 export const persistor = persistStore(store);
-export default store;
+// export default store;

@@ -48,13 +48,13 @@ const InputField = forwardRef(
                             {showPassword ? (
                                 <img
                                     className="w-4 opacity-50"
-                                    src="/src/assets/icons/fi_eye.svg"
+                                    src="/src/assets/icons/eye-open.svg"
                                     alt="closed eye password"
                                 />
                             ) : (
                                 <img
                                     className="w-4 opacity-50"
-                                    src="/src/assets/icons/fi_eye-off.svg"
+                                    src="/src/assets/icons/eye-off.svg"
                                     alt="open eye password"
                                 />
                             )}
