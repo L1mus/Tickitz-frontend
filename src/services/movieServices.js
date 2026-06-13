@@ -14,3 +14,8 @@ export const booksAPI = async (id) => {
     const response = await api.get(`/movies/${id}/showtime`)
     return response;
 }
+
+export const getAllLocationsAPI = async () => {
+    const response = await api.get("/movies/locations");
+    return response;
+}
