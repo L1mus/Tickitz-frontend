@@ -1,71 +1,100 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import AnalyticsLineChart from '../molecules/AnalyticsLineChart';
 import FilterDropdown from '../molecules/FilterDropdown';
 import { Button } from '../atoms/Button';
+import { fetchMovieListThunk, fetchSalesChartThunk } from '../../redux/slices/dashboardSlice';
 
 
-
+const PERIOD_OPTIONS = [
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' },
+];
 
 function SalesChartCard() {
-  const salesDataPool = {
-    'Movies Name': [0, 0, 0, 0, 0, 0],
-    'Avengers: End Game': [320, 390, 580, 350, 280, 360],
-    'Spiderman: Home Coming': [420, 290, 480, 550, 380, 490],
-  };
+  const dispatch = useDispatch();
 
+  const { labels, values, isLoading, error } = useSelector((state) => state.dashboard.salesChart);
+  const movieList = useSelector((state) => state.dashboard.movieList);
+
+  const [selectedMovie, setSelectedMovie] = useState('');
+  const [selectedPeriod, setSelectedPeriod] = useState('weekly');
+  const [activeTitle, setActiveTitle] = useState('All Movies — Weekly');
+
+  // Dropdown options dibangun dari movieList (dari Redux)
   const movieOptions = [
-    { value: 'Movies Name', label: 'Movies Name' },
-    { value: 'Avengers: End Game', label: 'Avengers: End Game' },
-    { value: 'Spiderman: Home Coming', label: 'Spiderman: Home Coming' },
+    { value: '', label: 'All Movies' },
+    ...movieList.map((m) => ({ value: m.title, label: m.title })),
   ];
 
-  const periodOptions = [
-    { value: 'Weekly', label: 'Weekly' },
-    { value: 'Monthly', label: 'Monthly' },
-  ];
-
-  const [selectedMovie, setSelectedMovie] = useState('Avengers: End Game');
-  const [selectedPeriod, setSelectedPeriod] = useState('Weekly');
-  const [activeMovie, setActiveMovie] = useState('Avengers: End Game');
+  // Fetch movie list untuk dropdown & chart awal saat mount
+  useEffect(() => {
+    dispatch(fetchMovieListThunk());
+    dispatch(fetchSalesChartThunk({ filterBy: 'weekly', movieName: '' }));
+  }, [dispatch]);
 
   const handleFilter = () => {
-    setActiveMovie(selectedMovie);
+    const movieLabel = selectedMovie || 'All Movies';
+    const periodLabel = selectedPeriod === 'weekly' ? 'Weekly' : 'Monthly';
+    setActiveTitle(`${movieLabel} — ${periodLabel}`);
+    dispatch(fetchSalesChartThunk({ filterBy: selectedPeriod, movieName: selectedMovie }));
   };
-
-  const currentData = salesDataPool[activeMovie] || salesDataPool['Movies Name'];
 
   return (
     <div className="rounded-3xl bg-white p-6 md:p-10 mb-10 shadow-sm">
       <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">Sales Chart</h2>
-      
+
       <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8">
         <FilterDropdown
-          value={selectedMovie} 
-          onChange={(e) => setSelectedMovie(e.target.value)} 
-          options={movieOptions} 
-          className="w-full md:w-56.75" 
+          value={selectedMovie}
+          onChange={(e) => setSelectedMovie(e.target.value)}
+          options={movieOptions}
+          className="w-full md:w-56.75"
         />
-        <FilterDropdown 
-          value={selectedPeriod} 
-          onChange={(e) => setSelectedPeriod(e.target.value)} 
-          options={periodOptions} 
-          className="w-full md:w-41.25" 
+        <FilterDropdown
+          value={selectedPeriod}
+          onChange={(e) => setSelectedPeriod(e.target.value)}
+          options={PERIOD_OPTIONS}
+          className="w-full md:w-41.25"
         />
         <Button
           onClick={handleFilter}
-          shape="rectangle" 
-          color="blue" 
+          shape="rectangle"
+          color="blue"
           className="w-full md:w-30 rounded-xl px-10 py-3.5 text-sm font-semibold transition-all hover:bg-blue-800 active:scale-98"
+          disabled={isLoading}
         >
-          Filter
+          {isLoading ? 'Loading...' : 'Filter'}
         </Button>
       </div>
 
-      <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-6">{activeMovie}</h3>
+      {error && (
+        <p className="text-sm text-red-500 mb-4">Gagal memuat data: {error}</p>
+      )}
+
+      <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-6">{activeTitle}</h3>
 
       <div className="w-full overflow-x-auto pb-4 custom-scrollbar">
         <div className="h-75 min-w-125 md:min-w-full">
-          <AnalyticsLineChart chartData={currentData} labelName="Sales ($)" />
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+              Memuat data...
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+              Terjadi kesalahan saat memuat data.
+            </div>
+          ) : labels.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+              Tidak ada data untuk filter ini.
+            </div>
+          ) : (
+            <AnalyticsLineChart
+              chartData={values}
+              chartLabels={labels}
+              labelName="Revenue ($)"
+            />
+          )}
         </div>
       </div>
     </div>

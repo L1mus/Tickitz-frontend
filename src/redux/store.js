@@ -15,6 +15,8 @@ import movieReducer from './slices/movieSlice.js';
 import transactionReducer from './slices/transactionSlice.js';
 import orderReducer from './slices/orderSlice.js';
 import userReducer from  './slices/userSlice.js';
+import dashboardReducer from './slices/dashboardSlice.js';
+
 import adminMoviesReducer from './slices/adminMoviesSlice.js';
 // import env from "../utils/environment";
 
@@ -29,6 +31,7 @@ const authPersistConfig = {
     'resetPassEmail',
     'isResetOtpVerified',
     'adminMovies',
+    'dashboard',
     'order',
     'transaction',
   ],
@@ -40,6 +43,7 @@ const rootReducer = combineReducers({
   transaction: transactionReducer,
   order: orderReducer,
   user: userReducer,
+  dashboard: dashboardReducer,
 });
 
 export const store = configureStore({
