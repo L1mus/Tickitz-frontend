@@ -14,8 +14,9 @@ import authReducer from './slices/authSlice.js';
 import movieReducer from './slices/movieSlice.js';
 import transactionReducer from './slices/transactionSlice.js';
 import orderReducer from './slices/orderSlice.js';
-
+import userReducer from  './slices/userSlice.js';
 import adminMoviesReducer from './slices/adminMoviesSlice.js';
+import { injectStore } from '../services/userServices.js';
 // import env from "../utils/environment";
 
 const authPersistConfig = {
@@ -39,6 +40,7 @@ const rootReducer = combineReducers({
   adminMovies: adminMoviesReducer,
   transaction: transactionReducer,
   order: orderReducer,
+  user: userReducer,
 });
 
 export const store = configureStore({
@@ -52,6 +54,8 @@ export const store = configureStore({
     });
   },
 });
+
+injectStore(store)
 
 export const persistor = persistStore(store);
 // export default store;

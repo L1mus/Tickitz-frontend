@@ -5,7 +5,7 @@ import { Button } from '../components/atoms/Button';
 import { fetchMoviesThunk } from '../redux/slices/adminMoviesSlice';
 import toast from 'react-hot-toast';
 
-const BACKEND_URL = 'http://localhost:8080/img/';
+const BACKEND_URL = "http://localhost:8080/img/" ;
 
 function ListMovie() {
   const navigate = useNavigate();
@@ -75,7 +75,7 @@ function ListMovie() {
 
   const handleView = (id) => toast(`Melihat detail film ID: ${id}`);
   const handleEdit = (movie) =>
-    navigate(`/admin/add-movie/${movie.id}`, { state: { movieData: movie } });
+    navigate(`/admin/movies/add-movie/${movie.id}`, { state: { movieData: movie } });
   const handleDelete = () =>
     confirm('Apakah Anda yakin?') &&
     toast('Fitur hapus segera diimplementasikan.');
@@ -101,7 +101,7 @@ function ListMovie() {
               </h2>
               <div className="block md:hidden">
                 <Button
-                  onClick={() => navigate('/admin/add-movie')}
+                  onClick={() => navigate('/admin/movies/add-movie')}
                   color="blue"
                   className="flex h-11 w-22.75 items-center justify-center gap-1 rounded-xl text-sm font-semibold text-white"
                 >
@@ -159,7 +159,7 @@ function ListMovie() {
 
               <div className="hidden md:block">
                 <Button
-                  onClick={() => navigate('/admin/add-movie')}
+                  onClick={() => navigate('/admin/movies/add-movie')}
                   color="blue"
                   className="h-14 w-35 rounded-xl bg-[#1D4ED8] px-6 py-3 text-sm font-semibold text-white shadow-md shadow-blue-100 transition-all hover:bg-blue-700 active:scale-98"
                 >

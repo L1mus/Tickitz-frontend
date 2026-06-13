@@ -91,7 +91,7 @@ export const logoutSlice = createAsyncThunk(
 );
 
 const initialState = {
-  token: null,
+  token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6NiwiRnVsbE5hbWUiOiJKb2hubnkgdXBkYXRlIiwiaXNzIjoidGlja2l0ei5jb20iLCJleHAiOjE3ODEyNjgwODB9.QK6zV-ZjNsgZt9eU1ObvsWOf812jjSLh1mN9fGK7VcA",
   isAuthenticated: false,
   currentUser: null,
   registeredEmail: null,

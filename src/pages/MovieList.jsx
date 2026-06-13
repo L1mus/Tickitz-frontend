@@ -13,7 +13,7 @@ function MovieList() {
     const [search, setSearch] = useState("");
     const [activeGenre, setActiveGenre] = useState("");
     const [page, setPage] = useState(1);
-    const API_URL = "http://localhost:8080/"
+    const API_URL = "http://localhost:8080/img/"
 
     const genresList = ["Thriller", "Horror", "Romantic", "Adventure", "Sci-Fi"];
     useEffect(() => {
@@ -56,6 +56,7 @@ function MovieList() {
 
     const handleSearchChange = (e) => {
         setSearch(e.target.value);
+        setPage(1);
         setPage(1);
     };
 
@@ -215,6 +216,7 @@ function MovieList() {
 
                             {Array.from({ length: pagination?.total_page || 1 }, (_, index) => {
                                 const pageNumber = index + 1;
+                                const pageNumber = index + 1;
 
                                 const isActive = pagination?.current_page === pageNumber;
 
@@ -223,6 +225,8 @@ function MovieList() {
                                         key={pageNumber}
                                         onClick={() => handlePageChange(`/api/movies?page=${pageNumber}`)}
                                         className={`w-10 h-10 rounded-md text-sm font-semibold border transition-all ${isActive
+                                            ? "bg-blue-600 text-white border-blue-600 shadow-md scale-105"
+                                            : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-gray-800"
                                             ? "bg-blue-600 text-white border-blue-600 shadow-md scale-105"
                                             : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-gray-800"
                                             }`}

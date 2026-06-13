@@ -1,188 +1,160 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useSearchParams } from 'react-router';
-import Header from '../components/organism/Header';
-import Footer from '../components/organism/Footer';
-import Stepper from '../components/molecules/Stepper';
-import { Button } from '../components/atoms/Button';
-import SeatGrid from '../components/molecules/SeatGrid';
-import SeatingKey from '../components/atoms/SeatingKey';
-import SummaryCard from '../components/organism/SummaryCard';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   getSeatPage,
   createBooking,
   toggleSeat,
-  toggleLoveNestPair,
   clearSelectedSeats,
   resetBooking,
-  selectSeatPage,
-  selectSelectedSeats,
-  selectBooking,
 } from '../redux/slices/orderSlice';
+import SeatGrid from '../components/molecules/SeatGrid';
+import SeatingKey from '../components/atoms/SeatingKey';
+import SummaryCard from '../components/organism/SummaryCard';
+import Stepper from '../components/molecules/Stepper'
 
-const STEPS = ['Dates And Time', 'Seat', 'Payment'];
-
+// ─── Main Component 
 export default function OrderPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [params] = useSearchParams();
-  const showtimeId = Number(params.get('showtime_id'));
+  const [searchParams] = useSearchParams();
+  const showtimeIdStr = searchParams.get('showtime_id');
+  const showtimeId = showtimeIdStr ? parseInt(showtimeIdStr, 10) : null;
 
-  const seatPage = useSelector(selectSeatPage);
-  const selectedSeats = useSelector(selectSelectedSeats);
-  const booking = useSelector(selectBooking);
+  const seatPage = useSelector((state) => state.order.seatPage);
+  const selectedSeats = useSelector((state) => state.order.selectedSeats);
+  const booking = useSelector((state) => state.order.booking);
+
+  const selectedIds = selectedSeats.map((s) => s.id);
 
   useEffect(() => {
-    if (!showtimeId) return;
-    dispatch(getSeatPage(showtimeId));
-    return () => {
-      dispatch(clearSelectedSeats());
-      dispatch(resetBooking());
-    };
+    if (showtimeId) {
+      dispatch(getSeatPage(showtimeId));
+    }
+    dispatch(clearSelectedSeats());
+    dispatch(resetBooking());
   }, [dispatch, showtimeId]);
 
-  useEffect(() => {
-    if (booking.bookingId) {
-      navigate(`/payment?booking_id=${booking.bookingId}`);
-    }
-  }, [booking.bookingId, navigate]);
-
-  const handleToggleSeat = (ids, action) => {
-    const seatMap = {};
-    seatPage.seats.forEach((s) => {
-      seatMap[`${s.row}${s.seat_number}`] = s;
-    });
-
-    if (action === 'select' || action === 'deselect') {
-      const seatObjects = ids.map((id) => seatMap[id]).filter(Boolean);
-      dispatch(toggleLoveNestPair({ seats: seatObjects, action }));
-    } else {
-      const seat = seatMap[ids[0]];
-      if (seat && seat.seat_status !== 'Sold') {
-        dispatch(toggleSeat(seat));
-      }
-    }
+  const handleToggleSeat = (seat) => {
+    dispatch(toggleSeat(seat));
   };
 
   const handleCheckout = () => {
-    if (selectedSeats.length === 0) return;
-    dispatch(
-      createBooking({
-        showtime_id: showtimeId,
-        seat_ids: selectedSeats.map((s) => s.seat_id),
-        quantity: selectedSeats.length,
+    if (!showtimeId || selectedSeats.length === 0) return;
+    const payload = {
+      showtime_id: showtimeId,
+      seat_ids: selectedSeats.map((s) => s.id),
+      quantity: selectedSeats.length,
+    };
+
+    dispatch(createBooking(payload))
+      .unwrap()
+      .then((data) => {
+        if (data?.booking_id) navigate(`/users/payment/${data.booking_id}`);
       })
-    );
+      .catch((err) => console.error('Booking failed:', err));
   };
 
-  if (seatPage.loading) {
+  if (seatPage.loading && !seatPage.seats.length) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="border-t-primary h-10 w-10 animate-spin rounded-full border-4 border-gray-200" />
+      <div className="flex min-h-screen items-center justify-center bg-[#f5f6f8]">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
   }
-
-  if (seatPage.error) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-red-500">{seatPage.error}</p>
-      </div>
-    );
-  }
-
-  const selectedIds = selectedSeats.map((s) => `${s.row}${s.seat_number}`);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F5F6FA]">
-      <Header />
+    <div className="min-h-screen bg-[#f5f6f8] flex flex-col font-sans antialiased">
+      
+      {/* Container Stepper Atas */}
+      <div className="bg-white rounded-b-2xl shadow-sm mb-8">
+        <Stepper active={2} />
+      </div>
 
-      <main className="flex-1 px-5 py-8 md:px-16 lg:px-24">
-        <div className="mb-8 flex justify-center">
-          <Stepper steps={STEPS} activeStep={1} showCheck />
-        </div>
-
-        <div className="flex flex-col items-start gap-6 lg:flex-row">
-          {/* Panel Kiri */}
-          <div className="min-w-0 flex-1">
-            {/* Movie info */}
-            {seatPage.summary && (
-              <div className="mb-5 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                <div className="flex items-start gap-4">
-                  <img
-                    src={seatPage.summary.movie_poster}
-                    alt={seatPage.summary.movie_title}
-                    className="h-28 w-20 shrink-0 rounded-lg object-cover"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <h2 className="mb-2 text-lg font-bold text-gray-900">
-                      {seatPage.summary.movie_title}
-                    </h2>
-                    <span className="rounded-full border border-gray-300 px-3 py-0.5 text-xs text-gray-500">
-                      {seatPage.summary.category}
-                    </span>
-                    <p className="mt-2 text-sm text-gray-500">
-                      {seatPage.summary.show_time}
-                    </p>
-                  </div>
-                  <Button
-                    color="blue"
-                    shape="rectangle"
-                    className="shrink-0 px-4 py-2 text-sm"
-                    onClick={() => navigate(-1)}
-                  >
-                    Change
-                  </Button>
+      {/* Konten Halaman */}
+      <main className="container mx-auto flex flex-col items-start gap-8 pb-16 lg:flex-row px-4 xl:px-8 max-w-7xl">
+        
+        {/* PANEL KIRI: Header Film & Kursi */}
+        <div className="flex-1 w-full flex flex-col gap-6 overflow-hidden">
+          
+          {/* Header Informasi Film Card */}
+          {seatPage.summary && (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-xl bg-white p-6 md:p-8 shadow-sm border border-gray-100 gap-6">
+              <div className="flex gap-6 items-center">
+                <img 
+                  src={seatPage.summary.movie_poster} 
+                  alt={seatPage.summary.movie_title} 
+                  className="w-16 h-24 sm:w-20 sm:h-28 object-cover rounded-lg shadow-sm bg-gray-100"
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+                <div className="flex flex-col gap-1.5">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+                    {seatPage.summary.movie_title}
+                  </h1>
+                  <p className="text-sm font-medium text-gray-500">
+                    {seatPage.summary.cinema_name}
+                  </p>
+                  <p className="text-sm font-medium text-gray-500">
+                    {new Date(seatPage.summary.show_date).toLocaleDateString('id-ID', {
+                      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+                    })} • {seatPage.summary.show_time?.slice(0, 5)} WIB
+                  </p>
                 </div>
               </div>
-            )}
+              <button 
+                onClick={() => navigate('/')} 
+                className="text-sm font-bold text-primary bg-primary/10 hover:bg-primary/20 px-6 py-3 rounded-lg transition-all self-end sm:self-center shrink-0"
+              >
+                Change Movie
+              </button>
+            </div>
+          )}
 
-            {/* Seat Grid */}
-            <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-              <h3 className="mb-6 text-lg font-bold text-gray-900">
-                Choose Your Seat
-              </h3>
-
-              {/* Screen indicator */}
-              <p className="mb-2 text-center text-xs tracking-widest text-gray-400 uppercase">
-                Screen
-              </p>
-              <div className="mx-auto mb-6 h-1 w-[70%] rounded-sm bg-gray-200" />
-
-              <div className="overflow-x-auto">
-                <SeatGrid
-                  seats={seatPage.seats}
-                  selectedIds={selectedIds}
-                  onToggle={handleToggleSeat}
-                />
-              </div>
-
-              <SeatingKey />
+          {/* Area Denah Kursi Card */}
+          <div className="rounded-xl bg-white p-6 md:p-8 shadow-sm border border-gray-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-8">Choose Seat</h2>
+            
+            {/* Indikator Layar */}
+            <div className="mb-10 w-full flex flex-col items-center">
+              <div className="h-2 w-4/5 max-w-md bg-gray-300 rounded-t-full shadow-[0_4px_12px_rgba(0,0,0,0.1)]" />
+              <p className="mt-3 text-xs font-bold text-gray-400 uppercase tracking-[0.2em]">Screen</p>
             </div>
 
-            {/* Error booking */}
-            {booking.error && (
-              <p className="mt-3 text-center text-sm text-red-500">
-                {booking.error}
-              </p>
-            )}
+            {/* Render Grid Kursi */}
+            <div className="overflow-x-auto scrollbar-hide pb-4">
+              <SeatGrid
+                seats={seatPage.seats}
+                selectedIds={selectedIds}
+                onToggle={handleToggleSeat}
+              />
+            </div>
+
+            {/* Key / Legend */}
+            <div className="mt-8 border-t border-gray-100 pt-6">
+              <SeatingKey />
+            </div>
           </div>
 
-          {/* Panel Kanan */}
-          {seatPage.summary && (
-            <div className="w-full shrink-0 lg:w-72 xl:w-80">
-              <SummaryCard
-                summary={seatPage.summary}
-                selectedSeats={selectedSeats}
-                onCheckout={handleCheckout}
-                isLoading={booking.loading}
-              />
+          {booking?.error && (
+            <div className="mt-2 rounded-xl bg-red-50 border border-red-100 px-5 py-3 text-center text-sm font-medium text-red-600">
+              ⚠️ {booking.error}
             </div>
           )}
         </div>
-      </main>
 
-      <Footer />
+        {/* PANEL KANAN: Order Info / Summary */}
+        {seatPage.summary && (
+          <div className="w-full shrink-0 lg:w-87.5 xl:w-100 lg:sticky lg:top-6">
+            <SummaryCard
+              summary={seatPage.summary}
+              selectedSeats={selectedSeats}
+              onCheckout={handleCheckout}
+              isLoading={booking?.loading}
+            />
+          </div>
+        )}
+
+      </main>
     </div>
   );
 }
