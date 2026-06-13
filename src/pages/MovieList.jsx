@@ -216,7 +216,6 @@ function MovieList() {
 
                             {Array.from({ length: pagination?.total_page || 1 }, (_, index) => {
                                 const pageNumber = index + 1;
-                                const pageNumber = index + 1;
 
                                 const isActive = pagination?.current_page === pageNumber;
 
