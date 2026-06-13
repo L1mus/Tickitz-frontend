@@ -91,8 +91,8 @@ function SalesChartCard() {
           ) : (
             <AnalyticsLineChart
               chartData={values}
-              chartLabels={labels}
-              labelName="Revenue ($)"
+              labelName="Revenue (Rp.)"
+              yPrefix="Rp."   
             />
           )}
         </div>
