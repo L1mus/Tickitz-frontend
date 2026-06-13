@@ -33,6 +33,7 @@ import PublicRoute from './components/PublicRoute';
 import OrderPage from './pages/Order';
 import Payment from './pages/Payment';
 import TicketResult from './pages/TicketResult';
+import MovieDetails from './pages/MovieDetails';
 function App() {
   return (
     <>
@@ -70,6 +71,8 @@ function App() {
           <Route element={<PreventAdmin />}>
             <Route path="/" element={<LandingPage />} />
             <Route path="movies" element={<MovieList />} />
+            <Route path="movies/:id" element={<MovieDetails />} />
+            
           </Route>
 
           {/* ini rute user */}
