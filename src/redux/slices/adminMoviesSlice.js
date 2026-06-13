@@ -5,10 +5,9 @@ export const fetchMoviesThunk = createAsyncThunk(
   'movies/fetchMovies',
   async (params, { rejectWithValue }) => {
     try {
-      // params berisi { page, limit, month, year } dari UI
+      // params berisi { page, limit, month, year }
       const response = await axios.get('http://localhost:8080/api/admin/movies', { params });
-      
-      // Pastikan backend mengembalikan list data film beserta metadata pagination-nya
+
       return response.data.data; 
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Something went wrong');
@@ -37,20 +36,16 @@ const moviesSlice = createSlice({
         state.isLoading = false;
         state.error = null;
 
-        // Backend Anda mengembalikan object. Kita cek apakah dibungkus di .data atau langsung di payload.
         const responseData = action.payload?.data || action.payload;
 
-        // Jika responseData memiliki properti 'movies' yang berisi array
         if (responseData && Array.isArray(responseData.movies)) {
-          state.moviesList = responseData.movies; // <--- Tarik array filmnya di sini!
+          state.moviesList = responseData.movies;
           state.totalPages = responseData.total_pages || responseData.totalPages || responseData.total_page || 1
         } 
-        // Antisipasi jika suatu saat backend langsung mengirim array biasa
         else if (Array.isArray(responseData)) {
           state.moviesList = responseData;
           state.totalPages = 1;
         } 
-        // Jika tidak ada data yang cocok, kembalikan ke array kosong agar tidak crash
         else {
           state.moviesList = [];
           state.totalPages = 1;
