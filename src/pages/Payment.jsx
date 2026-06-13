@@ -249,7 +249,7 @@ const Payment = () => {
 
               toast.success('Payment Confirmed!', { id: 'confirm-payment' });
               dispatch(closeModal());
-              navigate(`/result/${modal.data.transaction_id}`);
+              navigate(`/users/result/${modal.data.transaction_id}`);
             } catch (error) {
               toast.error(error || 'Payment confirmation failed', {
                 id: 'confirm-payment',
