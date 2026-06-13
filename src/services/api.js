@@ -10,9 +10,9 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
-        const state = JSON.parse(localStorage.getItem("persist:auth") || "{}");
-        const loginState = state.auth ? JSON.parse(state.auth) : null;
-        const token = loginState?.token;
+        const authState = JSON.parse(localStorage.getItem("persist:auth") || "{}");
+        // const loginState = authstate.auth ? JSON.parse(authstate.auth) : null;
+        const token = authState?.token;
         console.log(token)
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;

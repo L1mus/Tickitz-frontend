@@ -205,11 +205,7 @@ const TicketCard = ({ ticket }) => {
               <div className="h-32 w-32 flex-shrink-0 rounded-md border border-gray-200 bg-gray-50 p-2">
                 {myDetail.qr_code ? (
                   <img
-                    src={
-                      myDetail.qr_code.startsWith('http')
-                        ? myDetail.qr_code
-                        : `${ASSET_URL}${myDetail.qr_code}`
-                    }
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(myDetail.qr_code)}`}
                     alt="QR Code"
                     className="h-full w-full object-contain"
                     onError={(e) => {
@@ -308,7 +304,7 @@ export default function TicketList() {
         ))
       ) : (
         <div className="py-20 text-center text-gray-400">
-          Kamu belum memiliki riwayat pemesanan tiket.
+          You don't have a ticket booking history yet.
         </div>
       )}
     </div>
