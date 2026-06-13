@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getMovie } from "../redux/slices/movieSlice";
 
 function MovieList() {
-    const { movieList, pagination, loading, error } = useSelector((state) => state.movies);
+    const { movieList, pagination, loading, error, activeLocation } = useSelector((state) => state.movies);
     const dispatch = useDispatch();
 
     const [search, setSearch] = useState("");
@@ -16,20 +16,22 @@ function MovieList() {
     // const API_URL = "http://localhost:8080/img/"
 
     const genresList = ["Thriller", "Horror", "Romantic", "Adventure", "Sci-Fi"];
+    useEffect(() => {
+        setPage(1);
+    }, [activeLocation?.id]);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             dispatch(getMovie({
                 search,
                 genre: activeGenre,
-                //     status: "now_showing", opsional jika ingin menampilkan hanya film yang tayang bulan ini
-                page
+                page,
+                location_id: activeLocation?.id || ""
             }));
-
         }, 300);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [dispatch, search, activeGenre, page]);
+    }, [dispatch, search, activeGenre, page, activeLocation?.id]);
 
     const handlePageChange = (targetUrl) => {
         if (!targetUrl) return;
@@ -54,6 +56,7 @@ function MovieList() {
 
     const handleSearchChange = (e) => {
         setSearch(e.target.value);
+        setPage(1);
         setPage(1);
     };
 
@@ -221,6 +224,8 @@ function MovieList() {
                                         key={pageNumber}
                                         onClick={() => handlePageChange(`/api/movies?page=${pageNumber}`)}
                                         className={`w-10 h-10 rounded-md text-sm font-semibold border transition-all ${isActive
+                                            ? "bg-blue-600 text-white border-blue-600 shadow-md scale-105"
+                                            : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-gray-800"
                                             ? "bg-blue-600 text-white border-blue-600 shadow-md scale-105"
                                             : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-gray-800"
                                             }`}

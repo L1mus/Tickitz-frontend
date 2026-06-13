@@ -1,26 +1,73 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '../atoms/Button';
+import { setLocation } from '../../redux/slices/movieSlice';
+import { getAllLocationsAPI } from '../../services/movieServices';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutSlice } from '../../redux/slices/authSlice';
 import { Modal } from './Modal';
 import { NavLink, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
+import photoDefault from '../../assets/icons/user.png';
+
 
 function Header() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { isAuthenticated, role, isLoading, currentUser } = useSelector((state) => state.auth);
+  const { isAuthenticated, role, isLoading, currentUser: authUser } = useSelector((state) => state.auth);
+  const { currentUser: profileUser } = useSelector((state) => state.user);
+  const currentUser = (profileUser && profileUser.photo) ? profileUser : authUser;
   const isAdmin = role === 'admin';
-  const defaultAvatar = "/images/default.jpg";
-  const profileImage = currentUser?.profile_image || defaultAvatar;
-
+  const ASSET_URL = import.meta.env.VITE_ASSET_URL || 'http://localhost:8080';
+  const defaultAvatar = photoDefault;
+  const profileImage = currentUser?.photo 
+    ? `${ASSET_URL}${currentUser.photo}` 
+    : defaultAvatar;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isLocationOpen, setIsLocationOpen] = useState(false);
   const locationRef = useRef(null);
+  const mobileLocationRef = useRef(null);
+  const profileRef = useRef(null);
+  const { activeLocation } = useSelector((state) => state.movies);
+  const [locations, setLocations] = useState([]);
+  const [searchLocation, setSearchLocation] = useState("");
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const response = await getAllLocationsAPI();
+        setLocations(response.data?.data || response.data || []);
+      } catch (error) {
+        console.error("Gagal mengambil data lokasi", error);
+      }
+    };
+    fetchLocations();
+  }, []);
+  const filteredLocations = locations.filter(loc =>
+    loc.city.toLowerCase().includes(searchLocation.toLowerCase())
+  );
 
-  const dummyLocations = ['Jakarta', 'Bandung', 'Surabaya', 'Yogyakarta', 'Bali'];
+  const handleLocationSelect = (cityId, cityName) => {
+    dispatch(setLocation({ id: cityId, name: cityName }));
+    setIsLocationOpen(false);
+    setSearchLocation("");
+  };
+  useEffect(() => {
+    function handleClickOutside(event) {
+      const isOutsideDesktop = !locationRef.current || !locationRef.current.contains(event.target);
+      const isOutsideMobile = !mobileLocationRef.current || !mobileLocationRef.current.contains(event.target);
+
+      if (isOutsideDesktop && isOutsideMobile) {
+        setIsLocationOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -38,7 +85,7 @@ function Header() {
       await dispatch(logoutSlice()).unwrap();
       setIsLogoutModalOpen(false);
       toast.success('Logout successful!');
-      navigate('/auth');
+      navigate('/');
     } catch (error) {
       setIsLogoutModalOpen(false);
       toast.error(error || "The session has ended");
@@ -80,48 +127,150 @@ function Header() {
             <div className="flex items-center gap-3 relative">
               {!isAdmin && (
                 <>
-                  <div className="hidden md:flex items-center gap-1 text-medium-normal text-gray-700">
-                    Location
+                  <div className="hidden md:flex flex-col relative" ref={locationRef}>
+                    <div
+                      className="flex items-center gap-1 cursor-pointer group"
+                      onClick={() => setIsLocationOpen(!isLocationOpen)}
+                    >
+                      <span className="text-medium-normal text-gray-700 group-hover:text-primary transition-colors">
+                        {activeLocation?.name || 'All Location'}
+                      </span>
+                      <img
+                        src="/src/assets/icons/icon_dropdown.svg"
+                        alt="icon dropdown"
+                        className={`transition-transform duration-300 ${isLocationOpen ? 'rotate-180' : ''}`}
+                      />
+                    </div>
+
+                    {/* Kotak Dropdown Pencarian */}
+                    {isLocationOpen && (
+                      <div className="absolute top-8 left-0 w-56 bg-white border border-gray-100 shadow-xl rounded-lg overflow-hidden z-50">
+                        <div className="p-3 border-b border-gray-100 bg-white">
+                          <input
+                            type="text"
+                            placeholder="Search city..."
+                            value={searchLocation}
+                            onChange={(e) => setSearchLocation(e.target.value)}
+                            className="w-full bg-gray-50 text-sm py-2 px-3 rounded-md outline-none focus:ring-1 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div className="max-h-48 overflow-y-auto">
+                          <div
+                            onClick={() => handleLocationSelect("", "All Location")}
+                            className="px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary cursor-pointer border-b border-gray-50"
+                          >
+                            All Locations
+                          </div>
+                          {filteredLocations.length > 0 ? (
+                            filteredLocations.map(loc => (
+                              <div
+                                key={loc.id}
+                                onClick={() => handleLocationSelect(loc.id, loc.city)}
+                                className="px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary cursor-pointer"
+                              >
+                                {loc.city}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="px-4 py-3 text-sm text-gray-400 text-center">City not found</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <img
-                    src="/src/assets/icons/icon_dropdown.svg"
-                    alt="icon dropdown"
-                    className="hidden md:block cursor-pointer hover:opacity-50 transition-opacity"
-                  />
-                  <img
+                  {/* <img
                     src="/src/assets/icons/search.svg"
                     alt="icon search"
                     className="hidden md:block cursor-pointer hover:opacity-50"
-                  />
+                  /> */}
                 </>
               )}
-
-              <img
-                src={profileImage}
-                alt="profile"
-                onClick={toggleDropdown}
-                className="h-10 w-10 hidden md:block rounded-full border border-gray-200 object-cover cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
-              />
-
-              {isDropdownOpen && (
-                <div className="absolute right-0 top-12 w-40 rounded-md border border-gray-100 bg-white p-2 shadow-lg z-50">
-                  {!isAdmin && (
-                    <NavLink
-                      to="users/profile"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className={({ isActive }) => `w-full block rounded-md px-4 py-2 text-left text-sm transition-colors ${isActive ? 'bg-blue-50 text-primary font-medium' : 'text-gray-700 hover:bg-gray-50'}`}
-                    >
-                      My Profile
-                    </NavLink>
-                  )}
-                  <button
-                    onClick={handleLogout}
-                    className="w-full rounded-md px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+              {!isAdmin && (
+                <div className="md:hidden flex flex-col relative" ref={mobileLocationRef}>
+                  <div
+                    className="flex items-center gap-1 cursor-pointer group"
+                    onClick={() => setIsLocationOpen(!isLocationOpen)}
                   >
-                    Logout
-                  </button>
+                    <span className="text-sm font-medium text-gray-700 max-w-[80px] truncate">
+                      {activeLocation?.name || 'Location'}
+                    </span>
+                    <img
+                      src="/src/assets/icons/icon_dropdown.svg"
+                      alt="icon dropdown"
+                      className={`w-4 h-4 transition-transform duration-300 ${isLocationOpen ? 'rotate-180' : ''}`}
+                    />
+                  </div>
+
+                  {/* Kotak Dropdown Mobile (Muncul ke kanan bawah) */}
+                  {isLocationOpen && (
+                    <div className="absolute top-8 right-0 w-48 bg-white border border-gray-100 shadow-xl rounded-lg overflow-hidden z-50">
+                      <div className="p-2 border-b border-gray-100 bg-white">
+                        <input
+                          type="text"
+                          placeholder="Search city..."
+                          value={searchLocation}
+                          onChange={(e) => setSearchLocation(e.target.value)}
+                          className="w-full bg-gray-50 text-sm py-1.5 px-2 rounded-md outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div className="max-h-40 overflow-y-auto">
+                        <div
+                          onClick={() => handleLocationSelect("", "All Location")}
+                          className="px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary cursor-pointer border-b border-gray-50"
+                        >
+                          All Locations
+                        </div>
+                        {filteredLocations.length > 0 ? (
+                          filteredLocations.map(loc => (
+                            <div
+                              key={loc.id}
+                              onClick={() => handleLocationSelect(loc.id, loc.city)}
+                              className="px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary cursor-pointer"
+                            >
+                              {loc.city}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-3 py-2 text-xs text-gray-400 text-center">City not found</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
+
+              <div className="relative hidden md:block" ref={profileRef}>
+                <img
+                  src={profileImage}
+                  alt="profile"
+                  onClick={toggleDropdown}
+                  onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = defaultAvatar;
+                }}
+                  className="h-10 w-10 rounded-full border border-gray-200 object-cover cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
+                />
+
+                {isDropdownOpen && (
+                  <div className="absolute right-0 top-12 w-40 rounded-md border border-gray-100 bg-white p-2 shadow-lg z-50">
+                    {!isAdmin && (
+                      <NavLink
+                        to="users/profile"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className={({ isActive }) => `w-full block rounded-md px-4 py-2 text-left text-sm transition-colors ${isActive ? 'bg-blue-50 text-primary font-medium' : 'text-gray-700 hover:bg-gray-50'}`}
+                      >
+                        My Profile
+                      </NavLink>
+                    )}
+                    <button
+                      onClick={handleLogout}
+                      className="w-full rounded-md px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-3">

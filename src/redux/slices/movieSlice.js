@@ -44,7 +44,8 @@ const initialState = {
   nowShowingMovies: [], 
   upcomingMovies: [],   
   movieDetail: null,
-  movieShowtime : null,   
+  movieShowtime : null, 
+  activeLocation: { id: null, name: "All Location" },  
   pagination: {    
     current_page: 1,
     limit: 12,
@@ -83,7 +84,11 @@ const initialState = {
 const movieSlice = createSlice({
     name: 'movies',
     initialState,
-    reducers: {},
+    reducers: {
+        setLocation: (state, action) => {
+            state.activeLocation = action.payload;
+        }
+    },
     extraReducers: (builder) => {
         builder
         .addCase(getMovie.pending, (state) => {
@@ -101,9 +106,12 @@ const movieSlice = createSlice({
                 state.upcomingMovies = data || [];
                 state.upComingPagination = meta || {};
             }
-            
-            state.movieList = data || [];
-            state.pagination = meta || {};
+            if (status === "all" || !status || status === "") {
+                state.movieList = data || [];
+                state.pagination = meta || {};
+            }
+            // state.movieList = data || [];
+            // state.pagination = meta || {};
         })
         .addCase(getMovie.rejected, (state, action) => {
             state.loading = false;
@@ -138,4 +146,5 @@ const movieSlice = createSlice({
     }
 });
 
+export const { setLocation } = movieSlice.actions;
 export default movieSlice.reducer;

@@ -72,7 +72,6 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="movies" element={<MovieList />} />
             <Route path="movies/:id" element={<MovieDetails />} />
-            
           </Route>
 
           {/* ini rute user */}
