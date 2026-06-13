@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { getMovieDetail, getMovieShowtime } from "../redux/slices/movieSlice";
 
-const API_URL = "http://localhost:8080/img/";
+// const API_URL = "http://localhost:8080/img/";
 
 const groupShowtimesByCinema = (showtimeList) => {
     if (!showtimeList || showtimeList.length === 0) return [];
@@ -16,7 +16,7 @@ const groupShowtimesByCinema = (showtimeList) => {
             acc[cinemaId] = {
                 id: cinemaId,
                 name: curr.cinema_name,
-                logo: curr.cinema_logo ? `${API_URL}${curr.cinema_logo}` : "",
+                logo: curr.cinema_logo ? `${curr.cinema_logo}` : "",
                 city: curr.city?.toLowerCase(),
                 schedules: [],
             };
@@ -159,29 +159,7 @@ function MovieDetails() {
             return;
         }
 
-        navigate(`/users/order?showtime_id=${schedule.showtime_id}`, {
-            state: {
-                showtime_id: schedule.showtime_id,
-                movie: {
-                    id: movieDetail?.id,
-                    title: movieDetail?.title,
-                    poster: movieDetail?.poster,
-                    duration: movieDetail?.duration,
-                    genres: movieDetail?.genres,
-                },
-                cinema: {
-                    id: cinema.id,
-                    name: cinema.name,
-                    logo: cinema.logo,
-                    city: cinema.city,
-                },
-                schedule: {
-                    date: schedule.date,
-                    time: schedule.time,
-                    price: schedule.price,
-                },
-            },
-        });
+        navigate(`/users/order?showtime_id=${schedule.showtime_id}`);
     };
 
     const totalPages = Math.ceil(filteredCinemas.length / cinemasPerPage);

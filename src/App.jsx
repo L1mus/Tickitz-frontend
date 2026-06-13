@@ -34,6 +34,7 @@ import PublicRoute from './components/PublicRoute';
 import OrderPage from './pages/Order';
 import Payment from './pages/Payment';
 import TicketResult from './pages/TicketResult';
+import MovieDetails from './pages/MovieDetails';
 function App() {
   return (
     <>
@@ -89,6 +90,7 @@ function App() {
             <Route path="movies">
               <Route index element={<ListMovie />} />
               <Route path="add-movie" element={<AddMovie />} />
+              <Route path="add-movie/:id" element={<AddMovie />} />
             </Route>
           </Route>
         </Route>

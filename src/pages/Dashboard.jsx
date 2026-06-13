@@ -1,5 +1,3 @@
-
-import Header from '../components/organism/Header';
 import SalesChartCard from '../components/organism/SalesChartCard';
 import TicketSalesCard from '../components/organism/TicketSalesCard';
 
@@ -7,7 +5,6 @@ import TicketSalesCard from '../components/organism/TicketSalesCard';
 function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <Header />
 
       <main className="mx-auto px-4 py-6 md:px-20 md:py-10">
         

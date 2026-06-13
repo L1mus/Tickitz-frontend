@@ -1,4 +1,3 @@
-
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -13,8 +12,21 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler);
 
-function AnalyticsLineChart({ chartData, labelName }) {
-  const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+function calcNiceMax(dataMax) {
+  if (!dataMax || dataMax <= 0) return 800;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(dataMax))); 
+  const nice = Math.ceil(dataMax / magnitude) * magnitude;        
+  return nice + magnitude;                                         
+}
+
+function AnalyticsLineChart({ chartData, chartLabels, labelName, yPrefix = 'Rp.' }) {
+  const labels = chartLabels && chartLabels.length > 0
+    ? chartLabels
+    : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+
+  const dataMax = chartData && chartData.length > 0 ? Math.max(...chartData) : 0;
+  const maxValue = calcNiceMax(dataMax);
+  const stepSize = maxValue / 4;
 
   const data = {
     labels,
@@ -60,11 +72,11 @@ function AnalyticsLineChart({ chartData, labelName }) {
       },
       y: {
         min: 0,
-        max: 800,
+        max: maxValue,
         ticks: {
-          stepSize: 200,
+          stepSize,
           color: '#9CA3AF',
-          callback: (value) => '$' + value,
+          callback: (value) => `${yPrefix}${value.toLocaleString('id-ID')}`,
           font: { size: 11 },
         },
         grid: { drawBorder: false },

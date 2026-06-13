@@ -1,6 +1,9 @@
 import api from './api';
 
-export const getMoviesAPI = async () => {
-    const response = await api.get("/admin/movies");
-    return response.data;
-};
+export const getMoviesAPI = (page,limit, month,year) =>
+  api.get('/admin/movies', {
+    page : page,
+    limit: limit,
+    month: month,
+    year: year
+  });
