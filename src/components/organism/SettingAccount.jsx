@@ -8,13 +8,36 @@ import { updateProfileSlice } from '../../redux/slices/userSlice';
 import toast from 'react-hot-toast';
 
 const profileSchema = Joi.object({
-  first_name: Joi.string().allow('').max(50).label('First Name'),
-  last_name: Joi.string().allow('').max(50).label('last_name'),
-  phone: Joi.string()
-    .allow('')
-    .pattern(/^[0-9]+$/)
+  first_name: Joi.string()
+    .min(1)
+    .max(50)
+    .required()
     .messages({
+      'string.empty': 'First Name cannot be empty',
+      'any.required': 'First Name is required',
+    })
+    .label('First Name'),
+    
+  last_name: Joi.string()
+    .min(1)
+    .max(50)
+    .required()
+    .messages({
+      'string.empty': 'Last Name cannot be empty',
+      'any.required': 'Last Name is required',
+    })
+    .label('Last Name'),
+    
+  phone: Joi.string()
+    .min(9)
+    .max(15)
+    .pattern(/^[0-9]+$/)
+    .required()
+    .messages({
+      'string.empty': 'Phone number cannot be empty',
       'string.pattern.base': 'Phone number must contain only numbers',
+      'string.min': 'Phone number must be at least 9 digits',
+      'any.required': 'Phone number is required',
     })
     .label('Phone Number'),
   new_password: Joi.string()
@@ -127,7 +150,7 @@ function SettingAccount() {
           <div>
             <label className="mb-1">Email</label>
             <InputField 
-                placeholder="Input Your Email"
+                placeholder={currentUser?.email || "Input your Email"}
                 className="w-full bg-gray-100 text-gray-400 cursor-not-allowed"
                 value={currentUser?.email || ""}
                 disabled
