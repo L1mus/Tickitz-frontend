@@ -12,7 +12,6 @@ import ProfilePage from './pages/ProfilePage';
 import MainLayout from './components/templates/MainLayout';
 import LandingPage from './pages/LandingPage';
 import MovieList from './pages/MovieList';
-import MovieDetails from './pages/MovieDetails';
 import { Toaster } from 'react-hot-toast';
 import Dashboard from './pages/Dashboard';
 import ListMovie from './pages/ListMovie';
