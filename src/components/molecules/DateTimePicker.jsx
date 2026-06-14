@@ -9,6 +9,7 @@ const DateTimePicker = ({
   onRemoveDate,
   onToggleTime,
   onRemoveTime,
+  onSelectAllTimes,
   errors,
 }) => {
   const [tempDate, setTempDate] = useState('');
@@ -19,13 +20,14 @@ const DateTimePicker = ({
     }
   };
 
+  const isAllTimesSelected = PRESET_TIMES.every((time) => cinemaTimes.includes(time));
+
   return (
     <div className="space-y-4 pt-2">
       <label className="block text-sm font-medium text-gray-500">
         Set Date &amp; Time
       </label>
 
-      {/* DATE */}
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-3">
           <input
@@ -63,18 +65,32 @@ const DateTimePicker = ({
             </span>
           ))}
           {cinemaDates.length === 0 && (
-            <p
-              className={`text-xs italic ${errors?.cinemaDates ? 'font-medium text-red-500' : 'text-gray-400'}`}
-            >
+            <p className={`text-xs italic ${errors?.cinemaDates ? 'font-medium text-red-500' : 'text-gray-400'}`}>
               {errors?.cinemaDates ?? 'No release date selected yet'}
             </p>
           )}
         </div>
       </div>
 
-      {/* TIME */}
       <div className="space-y-2 pt-2">
         <div className="flex flex-wrap gap-2.5">
+          
+          <button
+            type="button"
+            onClick={() => onSelectAllTimes(PRESET_TIMES, isAllTimesSelected)}
+            className={`rounded-lg border px-4 py-2 text-xs font-semibold transition-all duration-200 active:scale-95 ${
+              isAllTimesSelected
+                ? 'border-transparent bg-[#5F2EEA] text-white shadow-md shadow-purple-200'
+                : `bg-white text-gray-600 hover:bg-purple-50 ${
+                    errors?.cinemaTimes ? 'border-red-500' : 'border-gray-300'
+                  }`
+            }`}
+          >
+            All
+          </button>
+
+          <div className="w-px h-8 bg-gray-200 self-center mx-0.5"></div>
+
           {PRESET_TIMES.map((time) => {
             const isActive = cinemaTimes.includes(time);
             return (
@@ -86,9 +102,7 @@ const DateTimePicker = ({
                   isActive
                     ? 'border-transparent bg-[#5F2EEA] text-white shadow-md shadow-purple-200'
                     : `bg-white text-gray-600 hover:bg-purple-50 ${
-                        errors?.cinemaTimes
-                          ? 'border-red-500'
-                          : 'border-gray-300'
+                        errors?.cinemaTimes ? 'border-red-500' : 'border-gray-300'
                       }`
                 }`}
               >
@@ -110,14 +124,12 @@ const DateTimePicker = ({
                 onClick={() => onRemoveTime(idx)}
                 className="ml-2 font-bold text-gray-400 hover:text-red-500"
               >
-                ×
+                x
               </button>
             </span>
           ))}
           {cinemaTimes.length === 0 && (
-            <p
-              className={`text-xs italic ${errors?.cinemaTimes ? 'font-medium text-red-500' : 'text-gray-400'}`}
-            >
+            <p className={`text-xs italic ${errors?.cinemaTimes ? 'font-medium text-red-500' : 'text-gray-400'}`}>
               {errors?.cinemaTimes ?? 'No broadcast hours have been added yet'}
             </p>
           )}
