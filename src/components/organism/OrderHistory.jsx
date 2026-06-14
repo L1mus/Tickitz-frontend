@@ -64,7 +64,7 @@ const TicketCard = ({ ticket }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const { selectedOrderDetail } = useSelector((state) => state.user);
-  const ASSET_URL = import.meta.env.VITE_ASSET_URL || 'http://localhost:8080/img/';
+  const ASSET_URL = import.meta.env.VITE_ASSET_URL || 'http://localhost:8080';
 
   const myDetail = selectedOrderDetail
     ? selectedOrderDetail[ticket.booking_id]
