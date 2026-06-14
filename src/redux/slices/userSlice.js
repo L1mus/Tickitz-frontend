@@ -6,7 +6,7 @@ import {
   updateProfileAPI,
 } from '../../services/userServices';
 
-export const getProfilSlice = createAsyncThunk(
+export const getProfileSlice = createAsyncThunk(
   'user/getProfile',
   async (_, { rejectWithValue }) => {
     try {
@@ -84,15 +84,15 @@ const userSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      .addCase(getProfilSlice.pending, (state) => {
+      .addCase(getProfileSlice.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(getProfilSlice.fulfilled, (state, action) => {
+      .addCase(getProfileSlice.fulfilled, (state, action) => {
         state.isLoading = false;
         state.currentUser = action.payload.data;
       })
-      .addCase(getProfilSlice.rejected, (state, action) => {
+      .addCase(getProfileSlice.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
