@@ -4,6 +4,8 @@ import Joi from 'joi';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+const BACKEND_URL = 'http://localhost:8080/img/'
+
 const INITIAL_FORM_DATA = {
   movieName: '',
   genreIds: [],
@@ -144,7 +146,9 @@ const useMovieForm = (id, isEditMode) => {
           durationHour,
           durationMinute,
           synopsis: data.synopsis || '',
-          movieImage: data.poster,
+          movieImage: data.poster
+          ? (data.poster.startsWith('http') ? data.poster : `${BACKEND_URL}${data.poster}`)
+          : null,
           cinemaDates: data.dates || [],
           cinemaTimes: data.times || [],
         });
@@ -238,6 +242,7 @@ const useMovieForm = (id, isEditMode) => {
         validationErrors[detail.path[0]] = detail.message;
       });
       setErrors(validationErrors);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -264,18 +269,22 @@ const useMovieForm = (id, isEditMode) => {
         await axios.patch(`http://localhost:8080/api/admin/movies/${id}`, dataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        toast.success('Movies added success!');
+        toast.success('Movie updated successfully!');
       } else {
         await axios.post('http://localhost:8080/api/admin/movies', dataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        toast.success('Movies update success!');
+        toast.success('Movie added successfully!');
       }
 
+      window.scrollTo({ top: 0, behavior: 'instant' });
+
       navigate(-1);
+
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.message || 'an error occurred while saving the movie data.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
