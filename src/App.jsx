@@ -2,7 +2,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useDispatch,useSelector } from 'react-redux';
-import { getProfilSlice } from './redux/slices/userSlice';
+import { getProfileSlice } from './redux/slices/userSlice';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ActivatePage from './pages/ActivatePage';
@@ -43,7 +43,7 @@ function App() {
 
   useEffect(() => {
     if (token) {
-      dispatch(getProfilSlice());
+      dispatch(getProfileSlice());
     }
   }, [token, dispatch]);
   return (

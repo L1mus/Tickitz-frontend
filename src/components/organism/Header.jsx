@@ -15,7 +15,7 @@ function Header() {
   const navigate = useNavigate()
   const { isAuthenticated, role, isLoading, currentUser: authUser } = useSelector((state) => state.auth);
   const { currentUser: profileUser } = useSelector((state) => state.user);
-  const currentUser = (profileUser && profileUser.photo) ? profileUser : authUser;
+  const currentUser = profileUser || authUser // perbaikan hanif
   const isAdmin = role === 'admin';
   const ASSET_URL = import.meta.env.VITE_ASSET_URL || 'http://localhost:8080';
   const defaultAvatar = photoDefault;

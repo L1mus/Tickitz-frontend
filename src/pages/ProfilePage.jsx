@@ -2,14 +2,14 @@ import { useDispatch } from 'react-redux';
 import CardSettingChoice from '../components/organism/CardSettingChoice';
 import ProfileCard from '../components/organism/ProfileCard';
 import { useEffect } from 'react';
-import { getProfilSlice } from '../redux/slices/userSlice';
+import { getProfileSlice } from '../redux/slices/userSlice';
 // import ProfileLayout from "../components/templates/ProfileLayout"
 
 function ProfilePage() {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(getProfilSlice())
+    dispatch(getProfileSlice())
   }, [dispatch])
   return (
     <>
