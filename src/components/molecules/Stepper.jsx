@@ -1,7 +1,6 @@
 const Stepper = ({ steps = [], activeStep = 0, showCheck = false }) => {
   return (
     <div className="relative flex w-full items-center justify-between">
-      {/* Dashed line background step */}
       <div className="absolute top-6 right-0 left-0 z-0 border-t-2 border-dashed border-gray-300"></div>
 
       {steps.map((step, index) => {
@@ -11,7 +10,7 @@ const Stepper = ({ steps = [], activeStep = 0, showCheck = false }) => {
         return (
           <div
             key={index}
-            className="relative z-10 flex flex-col items-center justify-center bg-[#F5F6F8] px-2"
+            className="relative z-10 flex flex-col items-center justify-center bg-white px-2"
           >
             <div
               className={`flex h-12 w-12 items-center justify-center rounded-full text-base font-semibold text-white transition-colors ${

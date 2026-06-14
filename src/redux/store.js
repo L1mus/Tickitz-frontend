@@ -18,7 +18,6 @@ import userReducer from  './slices/userSlice.js';
 import dashboardReducer from './slices/dashboardSlice.js';
 
 import adminMoviesReducer from './slices/adminMoviesSlice.js';
-import { injectStore } from '../services/userServices.js';
 // import env from "../utils/environment";
 
 const authPersistConfig = {
@@ -58,8 +57,6 @@ export const store = configureStore({
     });
   },
 });
-
-injectStore(store)
 
 export const persistor = persistStore(store);
 // export default store;

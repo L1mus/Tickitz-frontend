@@ -6,6 +6,7 @@ import Stepper from '../components/molecules/Stepper';
 import OtpInput from '../components/molecules/OTP';
 import { useDispatch, useSelector } from 'react-redux';
 import { verifyResetOtpSlice, forgotPasswordSlice } from '../redux/slices/authSlice';
+import AuthLayout from '../components/templates/AuthLayout';
 
 function CheckOTP() {
     const navigate = useNavigate();
@@ -63,7 +64,7 @@ function CheckOTP() {
             inputRefs.current[focusIndex].focus();
         }
     };
-    const onSubmit = async(e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
         const otpCode = otp.join("");
         if (otpCode.length < 6) return toast.error("OTP code must 6 digit!");
@@ -89,7 +90,7 @@ function CheckOTP() {
         if (countdown > 0 || isResending) return;
         setIsResending(true);
         try {
-            await dispatch(forgotPasswordSlice({ email: resetPassEmail })).unwrap();            
+            await dispatch(forgotPasswordSlice({ email: resetPassEmail })).unwrap();
             toast.success("A new OTP code has been sent to your email!");
             setCountdown(300);
             setOtp(new Array(6).fill(''));
@@ -97,78 +98,50 @@ function CheckOTP() {
         } catch (error) {
             setIsResending(false);
             toast.error(error || "Failed to resend OTP");
-        } 
+        }
     };
-    const backgrounds = [
-        '/src/assets/images/bg-auth.svg',
-        '/src/assets/images/bg-auth-2.jpg',
-        '/src/assets/images/bg-auth-3.jpg'
-    ];
 
-    const [currentBg, setCurrentBg] = useState(0);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentBg((prev) => (prev + 1) % backgrounds.length);
-        }, 3000);
-
-        return () => clearInterval(interval);
-    }, [backgrounds.length]);
     return (
-        <>
-            <div className='min-h-screen relative flex flex-col items-center justify-center px-4 py-8 font-main'>
-                {backgrounds.map((bg, index) => (
-                    <div
-                        key={index}
-                        className={`absolute inset-0 z-0 bg-black/40 bg-blend-overlay bg-no-repeat bg-cover bg-center transition-opacity duration-1000 ease-in-out ${index === currentBg ? 'opacity-100' : 'opacity-0'
-                            }`}
-                        style={{ backgroundImage: `url('${bg}')` }}
-                    />
-                ))}
-                <section className="mb-8 flex justify-center"><img src='/src/assets/images/tickitz-white.svg' className="z-10 w-40 md:w-50 lg:w-60" /></section>
-                <main className='bg-white z-10 p-8 rounded-lg shadow-lg w-full md:min-3/6 max-w-lg'>
+        <AuthLayout>
+            <section className='hidden sm:block mb-6'>
+                <Stepper steps={["Email", "OTP", "Reset"]} activeStep={1} />
+            </section>
 
-                    <section className='hidden sm:block mb-6'>
-                        <Stepper steps={["Email", "OTP", "Reset"]} activeStep={1} />
-                    </section>
-
-                    <div className="text-center mb-8">
-                        <h1 className="text-2xl font-bold text-darkgrey mb-2">
-                            Verify Token OTP
-                        </h1>
-                        <p className='text-sm text-grey'>
-                            We have sent a 6-digit verification code to <span className="font-semibold text-darkgrey">{resetPassEmail}</span>
-                        </p>
-                    </div>
-
-                    <form onSubmit={onSubmit}>
-                        <OtpInput
-                            otp={otp}
-                            inputRefs={inputRefs}
-                            handleChange={handleChange}
-                            handleKeyDown={handleKeyDown}
-                            handlePaste={handlePaste}
-                        />
-
-                        <Button type='submit' color='blue' size='full' shape='rectangle' className='mt-8 hover:bg-blue-800' disabled={isLoading || isResending}>
-                            {isLoading ? "Process..." : "Verification"}
-                        </Button>
-                    </form>
-                    <div className="mt-6 text-center text-sm text-darkgrey">
-                        Didn't receive the code?{" "}
-                        <button 
-                            type="button" 
-                            onClick={handleResendOTP}
-                            disabled={countdown > 0 || isResending}
-                            className={`font-semibold transition-colors ${countdown > 0 || isResending ? 'text-grey cursor-not-allowed' : 'text-primary hover:underline cursor-pointer'}`}
-                        >
-                            {isResending ? 'Sending...' : (countdown > 0 ? `Resend in ${countdown}s` : 'Resend OTP')}
-                        </button>
-                    </div>
-                </main>
+            <div className="text-center mb-8">
+                <h1 className="text-2xl font-bold text-darkgrey mb-2">
+                    Verify Token OTP
+                </h1>
+                <p className='text-sm text-grey'>
+                    We have sent a 6-digit verification code to <span className="font-semibold text-darkgrey">{resetPassEmail}</span>
+                </p>
             </div>
 
-        </>
+            <form onSubmit={onSubmit}>
+                <OtpInput
+                    otp={otp}
+                    inputRefs={inputRefs}
+                    handleChange={handleChange}
+                    handleKeyDown={handleKeyDown}
+                    handlePaste={handlePaste}
+                />
+
+                <Button type='submit' color='blue' size='full' shape='rectangle' className='mt-8 hover:bg-blue-800' disabled={isLoading || isResending}>
+                    {isLoading ? "Process..." : "Verification"}
+                </Button>
+            </form>
+            <div className="mt-6 text-center text-sm text-darkgrey">
+                Didn't receive the code?{" "}
+                <button
+                    type="button"
+                    onClick={handleResendOTP}
+                    disabled={countdown > 0 || isResending}
+                    className={`font-semibold transition-colors ${countdown > 0 || isResending ? 'text-grey cursor-not-allowed' : 'text-primary hover:underline cursor-pointer'}`}
+                >
+                    {isResending ? 'Sending...' : (countdown > 0 ? `Resend in ${countdown}s` : 'Resend OTP')}
+                </button>
+            </div>
+
+        </AuthLayout>
     )
 }
 

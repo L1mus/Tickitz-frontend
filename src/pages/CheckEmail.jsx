@@ -9,6 +9,7 @@ import { Button } from "../components/atoms/Button";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { forgotPasswordSlice, setResetPassEmail } from "../redux/slices/authSlice";
+import AuthLayout from "../components/templates/AuthLayout";
 
 const schema = joi.object({
     email: joi.string()
@@ -47,34 +48,9 @@ function CheckEmail() {
             toast.error(error || "Failed to send OTP. Please try again.");
         }
     };
-    const backgrounds = [
-        '/src/assets/images/bg-auth.svg',
-        '/src/assets/images/bg-auth-2.jpg',
-        '/src/assets/images/bg-auth-3.jpg'
-    ];
-
-    const [currentBg, setCurrentBg] = useState(0);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentBg((prev) => (prev + 1) % backgrounds.length);
-        }, 3000);
-
-        return () => clearInterval(interval);
-    }, [backgrounds.length]);
+    
     return (
-        <>
-            <div className='min-h-screen relative flex flex-col items-center justify-center px-4 py-8 font-main'>
-                {backgrounds.map((bg, index) => (
-                    <div
-                        key={index}
-                        className={`absolute inset-0 z-0 bg-black/40 bg-blend-overlay bg-no-repeat bg-cover bg-center transition-opacity duration-1000 ease-in-out ${index === currentBg ? 'opacity-100' : 'opacity-0'
-                            }`}
-                        style={{ backgroundImage: `url('${bg}')` }}
-                    />
-                ))}
-                <section className="mb-8 flex justify-center"><img src='/src/assets/images/tickitz-white.svg' className="z-10 w-40 md:w-50 lg:w-60" /></section>
-                <main className='bg-white z-10 p-8 rounded-lg shadow-lg w-full md:min-3/6 max-w-lg'>
+        <AuthLayout>
                     <section className='hidden sm:block mb-6'>
                         <Stepper steps={["Email", "OTP", "Reset"]} activeStep={0} />
                     </section>
@@ -95,11 +71,7 @@ function CheckEmail() {
                     <p className="text-center text-sm text-darkgrey mt-6">
                         <Link to="/auth" className="text-primary hover:underline">Back to Login</Link>
                     </p>
-                </main>
-            </div>
-
-
-        </>
+        </AuthLayout>
     )
 }
 
