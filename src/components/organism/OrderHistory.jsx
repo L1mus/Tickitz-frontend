@@ -5,6 +5,7 @@ import {
   getOrderDetailSlice,
   getOrderHistorySlice,
 } from '../../redux/slices/userSlice';
+import { useNavigate } from 'react-router';
 
 // const mockTickets = [
 //   {
@@ -62,7 +63,7 @@ const getBadgeStyles = (status) => {
 const TicketCard = ({ ticket }) => {
   const dispatch = useDispatch();
   const [isExpanded, setIsExpanded] = useState(false);
-
+  const navigate = useNavigate()
   const { selectedOrderDetail } = useSelector((state) => state.user);
   const ASSET_URL = import.meta.env.VITE_ASSET_URL || 'http://localhost:8080/img/';
 
@@ -195,7 +196,14 @@ const TicketCard = ({ ticket }) => {
                 </p>
               )}
 
-              <button className="bg-primary w-max rounded-md px-6 py-2 text-sm font-medium text-white hover:bg-blue-700">
+              <button 
+                onClick={() => navigate(`/users/payment/${ticket.booking_id}`, {
+                  state: {
+                    movieId: ticket.movie_id || myDetail?.movie_id,
+                    movieTitle: ticket.movie_title
+                  }
+                })}
+                className="bg-primary w-max rounded-md px-6 py-2 text-sm font-medium text-white hover:bg-blue-700">
                 Check Payment
               </button>
             </div>
