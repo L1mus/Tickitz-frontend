@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { useEffect } from 'react';
-import { updateProfileSlice } from '../../redux/slices/userSlice';
+import { getProfileSlice, updateProfileSlice } from '../../redux/slices/userSlice';
 import toast from 'react-hot-toast';
 
 const profileSchema = Joi.object({
@@ -42,7 +42,7 @@ const profileSchema = Joi.object({
     .label('Phone Number'),
   new_password: Joi.string()
     .allow('')
-    .min(6)
+    .min(8)
     .messages({
       'string.min': 'New Password Must be at Least 6 Characters',
     })
@@ -105,6 +105,9 @@ function SettingAccount() {
         .unwrap()
         .then(() => {
             toast.success("Profile Updated Succesfully", {id: toastId})
+           
+            dispatch(getProfileSlice())
+           
             reset({
                 ...data,
                 new_password: "",
