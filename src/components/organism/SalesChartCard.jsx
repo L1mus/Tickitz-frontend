@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import AnalyticsLineChart from '../molecules/AnalyticsLineChart';
+import AnalyticsChart from '../molecules/AnalyticsLineChart';
 import FilterDropdown from '../molecules/FilterDropdown';
 import { Button } from '../atoms/Button';
 import { fetchMovieListThunk, fetchSalesChartThunk } from '../../redux/slices/dashboardSlice';
@@ -9,6 +9,39 @@ const PERIOD_OPTIONS = [
   { value: 'weekly', label: 'Weekly' },
   { value: 'monthly', label: 'Monthly' },
 ];
+
+function weekLabelToMonthName(label) {
+  const match = label.match(/Week\s+(\d+)/i);
+  if (!match) return label;
+
+  const weekNum = parseInt(match[1], 10);
+
+  const yearMatch = label.match(/(\d{4})/);
+  const year = yearMatch ? parseInt(yearMatch[1], 10) : new Date().getFullYear();
+
+  const simple = new Date(year, 0, 1 + (weekNum - 1) * 7);
+  const dayOfWeek = simple.getDay();
+  const isoWeekStart = new Date(simple);
+  if (dayOfWeek <= 4) {
+    isoWeekStart.setDate(simple.getDate() - simple.getDay() + 1);
+  } else {
+    isoWeekStart.setDate(simple.getDate() + 8 - simple.getDay());
+  }
+
+  return isoWeekStart.toLocaleString('en-US', { month: 'short' });
+}
+
+function convertWeekLabelsToMonths(labels) {
+  const seenMonths = new Set();
+  return labels.map((label) => {
+    const monthName = weekLabelToMonthName(label);
+    if (seenMonths.has(monthName)) {
+      return '';
+    }
+    seenMonths.add(monthName);
+    return monthName;
+  });
+}
 
 function SalesChartCard() {
   const dispatch = useDispatch();
@@ -19,6 +52,7 @@ function SalesChartCard() {
   const [selectedMovie, setSelectedMovie] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('weekly');
   const [activeTitle, setActiveTitle] = useState('All Movies — Weekly');
+  const [activePeriod, setActivePeriod] = useState('weekly');
 
   const movieOptions = [
     { value: '', label: 'All Movies' },
@@ -34,8 +68,15 @@ function SalesChartCard() {
     const movieLabel = selectedMovie || 'All Movies';
     const periodLabel = selectedPeriod === 'weekly' ? 'Weekly' : 'Monthly';
     setActiveTitle(`${movieLabel} — ${periodLabel}`);
+    setActivePeriod(selectedPeriod);
     dispatch(fetchSalesChartThunk({ filterBy: selectedPeriod, movieName: selectedMovie }));
   };
+
+  const isMonthly = activePeriod === 'monthly';
+
+  const displayLabels = !isMonthly && labels.length > 0
+    ? convertWeekLabelsToMonths(labels)
+    : labels;
 
   return (
     <div className="rounded-3xl bg-white p-6 md:p-10 mb-10 shadow-sm">
@@ -86,10 +127,12 @@ function SalesChartCard() {
               There is no data for this filter.
             </div>
           ) : (
-            <AnalyticsLineChart
+            <AnalyticsChart
               chartData={values}
+              chartLabels={displayLabels}
               labelName="Revenue (Rp.)"
-              yPrefix="Rp."   
+              yPrefix="Rp."
+              chartType={isMonthly ? 'bar' : 'line'}
             />
           )}
         </div>
