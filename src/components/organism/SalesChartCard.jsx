@@ -5,7 +5,6 @@ import FilterDropdown from '../molecules/FilterDropdown';
 import { Button } from '../atoms/Button';
 import { fetchMovieListThunk, fetchSalesChartThunk } from '../../redux/slices/dashboardSlice';
 
-
 const PERIOD_OPTIONS = [
   { value: 'weekly', label: 'Weekly' },
   { value: 'monthly', label: 'Monthly' },
@@ -21,13 +20,11 @@ function SalesChartCard() {
   const [selectedPeriod, setSelectedPeriod] = useState('weekly');
   const [activeTitle, setActiveTitle] = useState('All Movies — Weekly');
 
-  // Dropdown options dibangun dari movieList (dari Redux)
   const movieOptions = [
     { value: '', label: 'All Movies' },
     ...movieList.map((m) => ({ value: m.title, label: m.title })),
   ];
 
-  // Fetch movie list untuk dropdown & chart awal saat mount
   useEffect(() => {
     dispatch(fetchMovieListThunk());
     dispatch(fetchSalesChartThunk({ filterBy: 'weekly', movieName: '' }));
