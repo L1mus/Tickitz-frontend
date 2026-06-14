@@ -103,7 +103,13 @@ const userSlice = createSlice({
       })
       .addCase(updateProfileSlice.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.currentUser = action.payload.data;
+        // state.currentUser = action.payload.data;
+        const newData = action.payload.data;
+        state.currentUser = {
+          ...state.currentUser,
+          ...newData,
+          email: state.currentUser.email
+        };
       })
       .addCase(updateProfileSlice.rejected, (state, action) => {
         state.isLoading = false;
@@ -118,7 +124,7 @@ const userSlice = createSlice({
         state.isLoading = false
         state.orderHistory = action.payload.data
       })
-      .addCase(getOrderHistorySlice.rejected, (state,action) => {
+      .addCase(getOrderHistorySlice.rejected, (state, action) => {
         state.isLoading = false
         state.error = action.payload
       })
@@ -131,7 +137,7 @@ const userSlice = createSlice({
         state.isLoading = false
 
         const detailData = action.payload.data
-        if (detailData && detailData.booking_id ){
+        if (detailData && detailData.booking_id) {
           state.selectedOrderDetail[detailData.booking_id] = detailData
         }
       })

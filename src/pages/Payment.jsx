@@ -16,6 +16,7 @@ const Payment = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { bookingId } = useParams();
+  const ASSET_URL = 'http://localhost:8080';
 
   const [selectedMethodId, setSelectedMethodId] = useState(null);
 
@@ -197,7 +198,7 @@ const Payment = () => {
                   }`}
                 >
                   <img
-                    src={method.logo}
+                    src={`${ASSET_URL}${method.logo}`}
                     alt={method.name}
                     className="max-h-6 max-w-full object-contain"
                   />

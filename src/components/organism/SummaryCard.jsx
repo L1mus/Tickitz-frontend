@@ -7,6 +7,7 @@ export default function SummaryCard({
   isLoading = false,
 }) {
   const totalPrice = summary.ticket_price * selectedSeats.length;
+  const ASSET_URL = import.meta.env.VITE_ASSET_URL || 'http://localhost:8080/img/';
 
   const sortedSeats = [...selectedSeats].sort((a, b) => {
     if (a.row !== b.row) return a.row.localeCompare(b.row);
@@ -40,7 +41,7 @@ export default function SummaryCard({
       <div className="mb-6 flex flex-col items-center text-center">
         {summary.cinema_logo ? (
           <img
-            src={summary.cinema_logo}
+            src={`${ASSET_URL}${summary.cinema_logo}`}
             alt={summary.cinema_name}
             className="h-10 object-contain mb-2"
           />

@@ -144,7 +144,7 @@ export default function OrderPage() {
 
         {/* PANEL KANAN: Order Info / Summary */}
         {seatPage.summary && (
-          <div className="w-full flex-shrink-0 lg:w-[350px] xl:w-[400px] lg:sticky lg:top-6">
+          <div className="w-full shrink-0 lg:w-87.5 xl:w-100 lg:sticky lg:top-6">
             <SummaryCard
               summary={seatPage.summary}
               selectedSeats={selectedSeats}
