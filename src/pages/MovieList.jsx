@@ -4,6 +4,7 @@ import Footer from '../components/organism/Footer';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMovie } from '../redux/slices/movieSlice';
 import { Button } from '../components/atoms/Button';
+const BACKEND_URL = "http://localhost:8080/"
 
 function MovieList() {
   const { movieList, pagination, loading, error, activeLocation } = useSelector(
@@ -62,6 +63,12 @@ function MovieList() {
     setPage(1);
     setPage(1);
   };
+
+const getImageUrl = (poster) => {
+  if (!poster) return 'https://placehold.co/150';
+  console.log(poster)
+  return String(poster)?.startsWith('https') ? poster : `${BACKEND_URL}${poster}`;
+};
 
   function HeroBanner() {
     const heroBanners = [
@@ -225,10 +232,10 @@ function MovieList() {
                 <div key={m.id} className="w-full">
                   <MovieCard
                     id={m.id}
-                    poster={`${m.poster}`}
+                    poster={m.poster}
                     title={m.title}
                     genres={m.genres}
-                  />
+                    />
                 </div>
               ))}
             </section>
