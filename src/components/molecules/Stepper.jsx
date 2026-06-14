@@ -10,7 +10,7 @@ const Stepper = ({ steps = [], activeStep = 0, showCheck = false }) => {
         return (
           <div
             key={index}
-            className="relative z-10 flex flex-col items-center justify-center bg-white px-2"
+            className="relative z-10 flex flex-col items-center justify-center bg-transparent px-2"
           >
             <div
               className={`flex h-12 w-12 items-center justify-center rounded-full text-base font-semibold text-white transition-colors ${
