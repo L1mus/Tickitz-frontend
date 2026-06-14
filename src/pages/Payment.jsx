@@ -72,7 +72,8 @@ const Payment = () => {
     );
   }
 
-  const displayDate = new Date(paymentData.show_date).toLocaleDateString(
+  const displayDate = paymentData.show_date ?
+     new Date(paymentData.show_date).toLocaleDateString(
     'en-US',
     {
       weekday: 'long',
@@ -80,7 +81,7 @@ const Payment = () => {
       month: 'long',
       year: 'numeric',
     }
-  );
+  ) : '';
 
   return (
     <div className="min-h-screen w-full bg-[#F5F6F8] px-4 py-10 font-sans text-gray-800 antialiased md:px-0">
