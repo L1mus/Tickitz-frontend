@@ -1,5 +1,8 @@
 // import React from "react";
 import { Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useDispatch,useSelector } from 'react-redux';
+import { getProfileSlice } from './redux/slices/userSlice';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ActivatePage from './pages/ActivatePage';
@@ -33,10 +36,19 @@ import PublicRoute from './components/PublicRoute';
 import OrderPage from './pages/Order';
 import Payment from './pages/Payment';
 import TicketResult from './pages/TicketResult';
+import MovieDetails from './pages/MovieDetails';
 function App() {
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(getProfileSlice());
+    }
+  }, [token, dispatch]);
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster position="top-right" reverseOrder={false} autoClose={3000} />
       <Routes>
         <Route element={<PublicRoute />}>
           <Route path="auth">
@@ -60,12 +72,6 @@ function App() {
                   <Route element={<ResetPasswordProtectedRoute />}>
                     <Route path="reset" element={<Reset />} />
                   </Route>
-                  <Route path="order" element={<OrderPage />} />
-                  <Route path="payment/:bookingId" element={<Payment />} />
-                  <Route
-                    path="result/:transactionId"
-                    element={<TicketResult />}
-                  />
                 </Route>
               </Route>
             </Route>
@@ -76,12 +82,16 @@ function App() {
           <Route element={<PreventAdmin />}>
             <Route path="/" element={<LandingPage />} />
             <Route path="movies" element={<MovieList />} />
+            <Route path="movies/:id" element={<MovieDetails />} />
           </Route>
 
           {/* ini rute user */}
           <Route path="users" element={<RequireAuth />}>
             <Route path="profile" element={<ProfilePage />} />
             {/* <Route path="profile" element={<ProfilePage />} /> */}
+            <Route path="payment/:bookingId" element={<Payment />} />
+            <Route path="order" element={<OrderPage />} />
+            <Route path="result/:transactionId" element={<TicketResult />} />
           </Route>
 
           {/* ini rute admin nantinya */}
@@ -90,11 +100,13 @@ function App() {
             <Route path="movies">
               <Route index element={<ListMovie />} />
               <Route path="add-movie" element={<AddMovie />} />
+              <Route path="add-movie/:id" element={<AddMovie />} />
             </Route>
           </Route>
         </Route>
         {/* <Route path="dashboard" element={<Dashboard />} />
         <Route path='profile' element={<ProfilePage />} /> */}
+
       </Routes>
     </>
   );

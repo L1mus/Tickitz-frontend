@@ -1,24 +1,5 @@
 import { Button } from '../atoms/Button';
 
-/**
- * SummaryCard — panel kanan di Seat Page.
- *
- * Props:
- * @param {object}   summary              - ShowtimeSummary dari API (snake_case)
- * @param {string}   summary.cinema_logo
- * @param {string}   summary.cinema_name
- * @param {string}   summary.movie_title
- * @param {string}   summary.show_date    - e.g. "2020-07-07"
- * @param {string}   summary.show_time    - e.g. "13:00 PM"
- * @param {number}   summary.ticket_price
- * @param {Array}    selectedSeats        - array seat object dari Redux
- *                                          shape: { seat_id, row, seat_number, seat_type }
- * @param {function} onCheckout           - dipanggil saat klik "Checkout now"
- * @param {boolean}  isLoading            - disable tombol saat createBooking loading
- */
-
-const ROW_ORDER = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L'];
-
 export default function SummaryCard({
   summary,
   selectedSeats = [],
@@ -26,99 +7,103 @@ export default function SummaryCard({
   isLoading = false,
 }) {
   const totalPrice = summary.ticket_price * selectedSeats.length;
+  const ASSET_URL = import.meta.env.VITE_ASSET_URL || 'http://localhost:8080/img/';
 
-  // Sort seat dan buat label "C4, C5, F11" dll
-  const seatLabels = [...selectedSeats]
-    .sort((a, b) => {
-      const rowDiff = ROW_ORDER.indexOf(a.row) - ROW_ORDER.indexOf(b.row);
-      return rowDiff !== 0 ? rowDiff : a.seat_number - b.seat_number;
-    })
-    .map((s) => `${s.row}${s.seat_number}`)
-    .join(', ');
+  const sortedSeats = [...selectedSeats].sort((a, b) => {
+    if (a.row !== b.row) return a.row.localeCompare(b.row);
+    return a.seatNumber - b.seatNumber;
+  });
 
-  // Format show_date "2020-07-07" → "Tuesday, 07 July 2020"
+  const seatLabels = sortedSeats.map((s) => `${s.row}${s.seatNumber}`).join(', ');
+
   const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('en-US', {
+    if (!dateStr) return '—';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
       weekday: 'long',
-      day: '2-digit',
+      day: 'numeric',
       month: 'long',
       year: 'numeric',
     });
   };
 
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(value);
+  };
+
   return (
-    <div className="sticky top-6 rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-      {/* Cinema logo + nama */}
-      <div className="mb-5 flex flex-col items-center border-b border-gray-100 pb-5">
+    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm font-main">
+      {/* Brand Informasi Bioskop */}
+      <div className="mb-6 flex flex-col items-center text-center">
         {summary.cinema_logo ? (
           <img
-            src={summary?.cinema_logo}
+            src={`${ASSET_URL}${summary.cinema_logo}`}
             alt={summary.cinema_name}
-            className="mb-2 h-5 object-contain"
+            className="h-10 object-contain mb-2"
           />
         ) : (
-          <p className="mb-2 text-base font-bold text-blue-600 italic">
-            {summary.cinema_name}
-          </p>
+          <div className="h-10 w-10 bg-gray-100 rounded-full mb-2" />
         )}
-        <p className="text-sm font-bold text-gray-800">{summary.cinema_name}</p>
+        <h4 className="text-lg font-bold text-darkgrey">{summary.cinema_name}</h4>
       </div>
 
-      {/* Info rows */}
-      <div className="space-y-3 text-sm">
-        <Row label="Movie selected">
-          <span className="max-w-37.5 truncate text-right font-semibold text-gray-800">
-            {summary.movie_title}
-          </span>
-        </Row>
+      <h5 className="mb-4 text-sm font-bold tracking-wide text-grey uppercase">
+        Order Summary
+      </h5>
 
-        <Row label={formatDate(summary.show_date)}>
-          <span className="font-semibold text-gray-800">
-            {summary.show_time}
-          </span>
-        </Row>
+      {/* Rincian Baris */}
+      <div className="space-y-3.5">
+        <div className="flex items-start justify-between text-sm">
+          <span className="text-grey font-medium">Movie selected</span>
+          <span className="text-right font-bold text-darkgrey max-w-[60%]">{summary.movie_title}</span>
+        </div>
 
-        <Row label="One ticket price">
-          <span className="font-semibold text-gray-800">
-            ${summary.ticket_price}
-          </span>
-        </Row>
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-grey font-medium">Date</span>
+          <span className="font-bold text-darkgrey">{formatDate(summary.show_date)}</span>
+        </div>
 
-        <Row label="Seat choosed">
-          <span className="max-w-37.5 text-right leading-snug font-semibold text-gray-800">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-grey font-medium">Time</span>
+          <span className="font-bold text-darkgrey">{summary.show_time}</span>
+        </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-grey font-medium">One ticket price</span>
+          <span className="font-bold text-darkgrey">{formatCurrency(summary.ticket_price)}</span>
+        </div>
+
+        <div className="flex items-start justify-between text-sm">
+          <span className="text-grey font-medium">Seat choosed</span>
+          <span className="max-w-[60%] text-right font-bold text-primary wrap-break-word">
             {seatLabels || '—'}
           </span>
-        </Row>
+        </div>
       </div>
 
-      {/* Total */}
-      <div className="mt-5 flex items-center justify-between border-t border-gray-100 pt-4">
-        <span className="font-bold text-gray-800">Total Payment</span>
-        <span className="text-primary text-2xl font-bold">${totalPrice}</span>
+      {/* Pembatas Total */}
+      <div className="mt-6 flex items-center justify-between border-t border-dashed border-gray-200 pt-5">
+        <span className="text-base font-bold text-darkgrey">Total Payment</span>
+        <span className="text-2xl font-black text-primary">
+          {formatCurrency(totalPrice)}
+        </span>
       </div>
 
-      {/* Checkout button — disabled saat tidak ada kursi dipilih atau loading */}
+      {/* Tombol Aksi Utama */}
       <Button
         color="blue"
         size="full"
         shape="rectangle"
-        className="mt-5 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-6 w-full py-3 font-bold uppercase tracking-wider text-sm transition-all shadow-md bg-primary text-white rounded-lg hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         onClick={onCheckout}
         disabled={selectedSeats.length === 0 || isLoading}
       >
-        {isLoading ? 'Memproses...' : 'Checkout now'}
+        {isLoading ? 'Processing...' : 'Checkout now'}
       </Button>
-    </div>
-  );
-}
-
-function Row({ label, children }) {
-  return (
-    <div className="flex items-start justify-between gap-2">
-      <span className="shrink-0 text-gray-400">{label}</span>
-      {children}
     </div>
   );
 }

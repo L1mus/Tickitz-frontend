@@ -16,6 +16,7 @@ const Payment = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { bookingId } = useParams();
+  const ASSET_URL = 'http://localhost:8080';
 
   const [selectedMethodId, setSelectedMethodId] = useState(null);
 
@@ -71,7 +72,8 @@ const Payment = () => {
     );
   }
 
-  const displayDate = new Date(paymentData.show_date).toLocaleDateString(
+  const displayDate = paymentData.show_date ?
+     new Date(paymentData.show_date).toLocaleDateString(
     'en-US',
     {
       weekday: 'long',
@@ -79,7 +81,7 @@ const Payment = () => {
       month: 'long',
       year: 'numeric',
     }
-  );
+  ) : '';
 
   return (
     <div className="min-h-screen w-full bg-[#F5F6F8] px-4 py-10 font-sans text-gray-800 antialiased md:px-0">
@@ -197,7 +199,7 @@ const Payment = () => {
                   }`}
                 >
                   <img
-                    src={method.logo}
+                    src={`${ASSET_URL}${method.logo}`}
                     alt={method.name}
                     className="max-h-6 max-w-full object-contain"
                   />
@@ -249,7 +251,7 @@ const Payment = () => {
 
               toast.success('Payment Confirmed!', { id: 'confirm-payment' });
               dispatch(closeModal());
-              navigate(`/result/${modal.data.transaction_id}`);
+              navigate(`/users/result/${modal.data.transaction_id}`);
             } catch (error) {
               toast.error(error || 'Payment confirmation failed', {
                 id: 'confirm-payment',

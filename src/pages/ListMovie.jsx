@@ -4,47 +4,102 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '../components/atoms/Button';
 import { fetchMoviesThunk } from '../redux/slices/adminMoviesSlice';
 import toast from 'react-hot-toast';
+import FilterDropdown from '../components/molecules/FilterDropdown';
+import axios from 'axios';
+import MovieDetailModal from '../components/organism/MovieDetailModal';
+import DeleteMovieModal from '../components/organism/DeleteMovieModal';
 
-const BACKEND_URL = "http://localhost:8080/img/" ;
+
+const BACKEND_URL = "http://localhost:8080/img/";
+const API_URL = "http://localhost:8080";
+const MAX_VISIBLE_PAGES = 5;
 
 function ListMovie() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const {
-    moviesList,
-    isLoading,
-    error,
-    totalPages = 1,
-  } = useSelector((state) => state.adminMovies);
+  const { moviesList, isLoading, error, totalPages = 1 } = useSelector((state) => state.adminMovies);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [combinedFilter, setCombinedFilter] = useState('');
   const limit = 10;
 
-  useEffect(() => {
+  const [genreOptions, setGenreOptions] = useState([]);
+  const [directorOptions, setDirectorOptions] = useState([]);
+  const [castOptions, setCastOptions] = useState([]);
+  const [locationOptions, setLocationOptions] = useState([]);
+
+  const [selectedMovie, setSelectedMovie] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalLoading, setIsModalLoading] = useState(false);
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [movieToDelete, setMovieToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const getFilterParams = () => {
     let month = '';
     let year = '';
-
     if (combinedFilter) {
       const [m, y] = combinedFilter.split('-');
       month = m;
       year = y;
     }
+    return { month, year };
+  };
 
-    dispatch(
-      fetchMoviesThunk({
-        page: currentPage,
-        limit: limit,
-        month: month,
-        year: year,
-      })
-    );
+  useEffect(() => {
+    const { month, year } = getFilterParams();
+    dispatch(fetchMoviesThunk({ page: currentPage, limit, month, year }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, currentPage, combinedFilter]);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/admin/movie-options`);
+        setGenreOptions(res.data.genres || []);
+        setDirectorOptions(res.data.directors || []);
+        setCastOptions(res.data.casts || []);
+        setLocationOptions(res.data.locations || []);
+      } catch (err) {
+        console.error('Failed to load options:', err);
+      }
+    };
+    fetchOptions();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        // eslint-disable-next-line react-hooks/immutability
+        closeModal();
+        // eslint-disable-next-line react-hooks/immutability
+        cancelDelete();
+      }
+    };
+    if (isModalOpen || deleteModalOpen) window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen, deleteModalOpen]);
 
   const handleFilterChange = (e) => {
     setCombinedFilter(e.target.value);
     setCurrentPage(1);
+  };
+
+  // --- PAGINATION HELPER ---
+  const getVisiblePages = () => {
+    if (totalPages <= MAX_VISIBLE_PAGES) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const half = Math.floor(MAX_VISIBLE_PAGES / 2);
+    let start = Math.max(1, currentPage - half);
+    let end = start + MAX_VISIBLE_PAGES - 1;
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - MAX_VISIBLE_PAGES + 1);
+    }
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   };
 
   // --- HELPER FORMAT DATA ---
@@ -52,10 +107,7 @@ function ListMovie() {
     if (!dateString) return '-';
     const date = new Date(dateString);
     if (!isNaN(date.getTime())) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${day}/${month}/${year}`;
+      return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
     }
     return dateString;
   };
@@ -73,32 +125,90 @@ function ListMovie() {
     return '-';
   };
 
-  const handleView = (id) => toast(`Melihat detail film ID: ${id}`);
+  const getImageUrl = (movie) => {
+    const imagePath = movie.poster_url || movie.poster;
+    if (!imagePath) return 'https://placehold.co/150';
+    return imagePath.startsWith('http') ? imagePath : `${BACKEND_URL}${imagePath}`;
+  };
+
+  const resolveNames = (ids, options, nameKey = 'name') =>
+    Array.isArray(ids) && ids.length > 0
+      ? ids.map((id) => options.find((o) => o.id === id)?.[nameKey] || id).join(', ')
+      : '-';
+
+  // --- VIEW MODAL HANDLERS ---
+  const handleView = async (id) => {
+    setIsModalOpen(true);
+    setIsModalLoading(true);
+    setSelectedMovie(null);
+    try {
+      const response = await axios.get(`${API_URL}/api/admin/movies/${id}`);
+      setSelectedMovie(response.data.data);
+    // eslint-disable-next-line no-unused-vars
+    } catch (err) {
+      toast.error('Failed to load movie detail.');
+      setIsModalOpen(false);
+    } finally {
+      setIsModalLoading(false);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedMovie(null);
+  };
+
+  const handleDelete = (movie) => {
+    setMovieToDelete(movie);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!movieToDelete) return;
+    setIsDeleting(true);
+    try {
+      await axios.delete(`${API_URL}/api/admin/movies/${movieToDelete.id}`);
+      toast.success(`Movie "${movieToDelete.title}" successfully deleted.`);
+      setDeleteModalOpen(false);
+      setMovieToDelete(null);
+      setTimeout(() => {
+        const { month, year } = getFilterParams();
+        dispatch(fetchMoviesThunk({ page: currentPage, limit, month, year }));
+      }, 300);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to delete movie.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteModalOpen(false);
+    setMovieToDelete(null);
+  };
+
   const handleEdit = (movie) =>
     navigate(`/admin/movies/add-movie/${movie.id}`, { state: { movieData: movie } });
-  const handleDelete = () =>
-    confirm('Apakah Anda yakin?') &&
-    toast('Fitur hapus segera diimplementasikan.');
 
   const filterOptions = [
+    { value: '', label: 'All Months & Year' },
     { value: '8-2026', label: 'August 2026' },
     { value: '7-2026', label: 'July 2026' },
     { value: '6-2026', label: 'June 2026' },
-    { value: '5-2026', label: 'Mei 2026' },
+    { value: '5-2026', label: 'May 2026' },
     { value: '4-2026', label: 'April 2026' },
     { value: '3-2026', label: 'March 2026' },
   ];
 
+  const visiblePages = getVisiblePages();
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-700">
-
       <main className="px-4 py-8 md:px-20 md:py-12">
         <div className="rounded-2xl bg-white p-6 md:p-10">
           <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex w-full items-center justify-between md:w-auto">
-              <h2 className="text-xl font-bold text-[#14142B] md:text-2xl">
-                List Movie
-              </h2>
+              <h2 className="text-xl font-bold text-[#14142B] md:text-2xl">List Movie</h2>
               <div className="block md:hidden">
                 <Button
                   onClick={() => navigate('/admin/movies/add-movie')}
@@ -110,53 +220,15 @@ function ListMovie() {
               </div>
             </div>
 
-            {/* Dropdown Filter Menyatu */}
             <div className="flex w-full flex-col items-center gap-3 md:w-auto md:flex-row">
               <div className="relative w-full md:w-71">
-                <span className="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400">
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </span>
-                <select
+                <FilterDropdown
                   value={combinedFilter}
                   onChange={handleFilterChange}
-                  className="h-14 w-full appearance-none rounded-xl border border-transparent bg-[#F0F1F9] py-3 pr-10 pl-11 text-sm font-medium text-gray-600 transition-colors outline-none focus:border-blue-400"
-                >
-                  <option value="">All Months & Years</option>
-                  {filterOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-gray-400">
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
+                  options={filterOptions}
+                  className="w-full"
+                />
               </div>
-
               <div className="hidden md:block">
                 <Button
                   onClick={() => navigate('/admin/movies/add-movie')}
@@ -171,14 +243,10 @@ function ListMovie() {
 
           {/* Table Area */}
           {isLoading && (
-            <div className="py-10 text-center font-medium text-blue-600">
-              Loading movies data...
-            </div>
+            <div className="py-10 text-center font-medium text-blue-600">Loading movies data...</div>
           )}
           {error && (
-            <div className="py-10 text-center font-medium text-red-500">
-              Failed to load movies: {error}
-            </div>
+            <div className="py-10 text-center font-medium text-red-500">Failed to load movies: {error}</div>
           )}
 
           {!isLoading && !error && moviesList && (
@@ -198,127 +266,177 @@ function ListMovie() {
                 <tbody className="divide-y divide-gray-50 font-medium text-gray-600">
                   {Array.isArray(moviesList) && moviesList.length === 0 ? (
                     <tr>
-                      <td
-                        colSpan="7"
-                        className="py-6 text-center text-gray-400"
-                      >
-                        Tidak ada film yang cocok dengan filter.
+                      <td colSpan="7" className="py-6 text-center text-gray-400">
+                        No movies match the selected filter.
                       </td>
                     </tr>
                   ) : (
-                    moviesList?.map((movie, index) => {
-                      const imagePath = movie.poster_url || movie.poster;
-                      const finalImageUrl = imagePath?.startsWith('http')
-                        ? imagePath
-                        : `${BACKEND_URL}${imagePath}`;
-                      return (
-                        <tr
-                          key={movie.id}
-                          className="transition-colors hover:bg-gray-50/50"
-                        >
-                          <td className="py-4 pl-4 text-center text-gray-400">
-                            {(currentPage - 1) * limit + (index + 1)}
-                          </td>
-                          <td className="px-4 py-3">
-                            <img
-                              src={finalImageUrl}
-                              alt={movie.title}
-                              className="h-12 w-12 rounded-lg bg-gray-200 object-cover shadow-sm"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = 'https://placehold.co/150';
-                              }}
-                            />
-                          </td>
-                          <td className="cursor-pointer px-4 py-4 whitespace-nowrap text-[#1D4ED8] hover:underline">
-                            {movie.title}
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap text-gray-500">
-                            {movie.category || movie.genres || 'N/A'}
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap text-gray-500">
-                            {formatDate(
-                              movie.release_date || movie.releasedDate
-                            )}
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap text-gray-500">
-                            {formatDuration(movie)}
-                          </td>
-                          <td className="py-4 pr-4">
-                            <div className="flex items-center justify-center gap-1.5">
-                              <button
-                                onClick={() => handleView(movie.id)}
-                                className="flex h-7.75 w-7.75 justify-center rounded-md bg-[#1D4ED8] p-2 text-white transition-colors hover:bg-blue-700"
-                                title="View"
-                              >
-                                <img
-                                  src="/src/assets/icons/eye_movie.svg"
-                                  alt="icon eye"
-                                />
-                              </button>
-                              <button
-                                onClick={() => handleEdit(movie)}
-                                className="flex h-7.75 w-7.75 justify-center rounded-md bg-[#5F63F2] p-2 text-white transition-opacity hover:opacity-90"
-                                title="Edit"
-                              >
-                                <img
-                                  src="/src/assets/icons/edit_movie.svg"
-                                  alt="icon edit"
-                                />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(movie.id)}
-                                className="flex h-7.75 w-7.75 justify-center rounded-md bg-[#FF4D4F] p-2 text-white transition-colors hover:bg-red-600"
-                                title="Delete"
-                              >
-                                <img
-                                  src="/src/assets/icons/delete_movie.svg"
-                                  alt="icon delete"
-                                />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
+                    moviesList?.map((movie, index) => (
+                      <tr key={movie.id} className="transition-colors hover:bg-gray-50/50">
+                        <td className="py-4 pl-4 text-center text-gray-400">
+                          {(currentPage - 1) * limit + (index + 1)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <img
+                            src={getImageUrl(movie)}
+                            alt={movie.title}
+                            className="h-12 w-12 rounded-lg bg-gray-200 object-cover shadow-sm"
+                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/128x176?text=No+Image'; }}
+                          />
+                        </td>
+                        <td className="cursor-pointer px-4 py-4 whitespace-nowrap text-[#1D4ED8] hover:underline">
+                          {movie.title}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-gray-500">
+                          {movie.category || movie.genres || 'N/A'}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-gray-500">
+                          {formatDate(movie.release_date || movie.releasedDate)}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-gray-500">
+                          {formatDuration(movie)}
+                        </td>
+                        <td className="py-4 pr-4">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              onClick={() => handleView(movie.id)}
+                              className="flex h-7.75 w-7.75 justify-center rounded-md bg-[#1D4ED8] p-2 text-white transition-colors hover:bg-blue-700"
+                              title="View"
+                            >
+                              <img src="/src/assets/icons/eye_movie.svg" alt="icon eye" />
+                            </button>
+                            <button
+                              onClick={() => handleEdit(movie)}
+                              className="flex h-7.75 w-7.75 justify-center rounded-md bg-[#5F63F2] p-2 text-white transition-opacity hover:opacity-90"
+                              title="Edit"
+                            >
+                              <img src="/src/assets/icons/edit_movie.svg" alt="icon edit" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(movie)}
+                              className="flex h-7.75 w-7.75 justify-center rounded-md bg-[#FF4D4F] p-2 text-white transition-colors hover:bg-red-600"
+                              title="Delete"
+                            >
+                              <img src="/src/assets/icons/delete_movie.svg" alt="icon delete" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
                   )}
                 </tbody>
               </table>
             </div>
           )}
 
-          {/* PAGINATION BUTTONS */}
+          {/* PAGINATION */}
           {totalPages > 1 && (
             <div className="mt-10 flex items-center justify-center gap-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
+
+              {/* Prev Button */}
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="flex h-10 items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-500 transition-all hover:bg-primary/40 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                Prev
+              </button>
+
+              {/* First page + ellipsis */}
+              {visiblePages[0] > 1 && (
+                <>
                   <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-semibold transition-all ${
-                      currentPage === page
-                        ? 'border-[#1D4ED8] bg-[#1D4ED8] text-white shadow-md shadow-blue-100'
-                        : 'border-gray-200 bg-white text-gray-400 hover:border-gray-300 hover:text-gray-600'
-                    }`}
+                    onClick={() => setCurrentPage(1)}
+                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-sm font-semibold text-gray-400 hover:bg-primary/40 hover:text-gray-600"
                   >
-                    {page}
+                    1
                   </button>
-                )
+                  {visiblePages[0] > 2 && (
+                    <span className="flex h-10 w-6 items-center justify-center text-sm text-gray-400">...</span>
+                  )}
+                </>
               )}
+
+              {/* Visible page numbers */}
+              {visiblePages.map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-semibold transition-all ${
+                    currentPage === page
+                      ? 'border-[#1D4ED8] bg-[#1D4ED8] text-white shadow-md shadow-blue-100'
+                      : 'border-gray-200 bg-white text-gray-400 hover:bg-primary/40 hover:text-gray-600'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              {/* Last page + ellipsis */}
+              {visiblePages[visiblePages.length - 1] < totalPages && (
+                <>
+                  {visiblePages[visiblePages.length - 1] < totalPages - 1 && (
+                    <span className="flex h-10 w-6 items-center justify-center text-sm text-gray-400">...</span>
+                  )}
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-sm font-semibold text-gray-400 hover:bg-primary/40 hover:text-gray-600"
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
+
+              {/* Next Button */}
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="flex h-10 items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-500 transition-all hover:bg-primary/40 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                </svg>
+              </button>
+
             </div>
           )}
         </div>
       </main>
 
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-        .custom-scrollbar::-webkit-scrollbar { height: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #F3F4F6; border-radius: 999px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 999px; }
-      `,
-        }}
+      <MovieDetailModal
+        isModalOpen={isModalOpen}
+        closeModal={closeModal}
+        isModalLoading={isModalLoading}
+        selectedMovie={selectedMovie}
+        getImageUrl={getImageUrl}
+        formatDate={formatDate}
+        formatDuration={formatDuration}
+        resolveNames={resolveNames}
+        genreOptions={genreOptions}
+        directorOptions={directorOptions}
+        castOptions={castOptions}
+        locationOptions={locationOptions}
       />
+
+      <DeleteMovieModal
+        deleteModalOpen={deleteModalOpen}
+        cancelDelete={cancelDelete}
+        movieToDelete={movieToDelete}
+        confirmDelete={confirmDelete}
+        isDeleting={isDeleting}
+      />
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .custom-scrollbar::-webkit-scrollbar { height: 5px; }
+          .custom-scrollbar::-webkit-scrollbar-track { background: #F3F4F6; border-radius: 999px; }
+          .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 999px; }
+        `,
+      }} />
     </div>
   );
 }

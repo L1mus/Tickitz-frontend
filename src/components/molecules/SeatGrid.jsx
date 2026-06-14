@@ -1,223 +1,132 @@
-/**
- * SeatGrid
- *
- * LoveNest seats:
- *   - Selalu datang berpasangan (seat_number ganjil + genap berikutnya).
- *     Contoh: G8 & G9 → dirender menyatu jadi satu "sofa".
- *   - Klik salah satu → pilih keduanya sekaligus (pair selection).
- *   - Visual: dua kotak tanpa gap, sudut luar melengkung, sudut dalam
- *     rata — mirip kursi bioskop couple di gambar referensi.
- *
- * @typedef {'available'|'selected'|'sold'|'lovenest'|'lovenest-sold'} SeatStatus
- *
- * @typedef {Object} Seat
- * @property {string}  id         - e.g. "G8"
- * @property {string}  row        - e.g. "G"
- * @property {number}  seatNumber - e.g. 8
- * @property {string}  seatType   - "Regular" | "LoveNest"
- * @property {string}  status     - "Available" | "Sold"
- *
- * @param {Object}   props
- * @param {Seat[]}   props.seats        - flat list of all seats
- * @param {string[]} props.selectedIds  - currently selected seat IDs
- * @param {Function} props.onToggle     - (ids: string[]) => void
- *                                        untuk LN dikirim array 2 id,
- *                                        untuk Regular array 1 id
- */
-const SeatGrid = ({ seats = [], selectedIds = [], onToggle }) => {
-  const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L'];
+export default function SeatGrid({ seats = [], selectedIds = [], onToggle }) {
+  const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
   const leftCols = [1, 2, 3, 4, 5, 6, 7];
   const rightCols = [8, 9, 10, 11, 12, 13, 14];
 
-  const seatMap = {};
-  seats.forEach((s) => {
-    seatMap[`${s.row}${s.seatNumber}`] = s;
-  });
+  const findSeat = (row, col) => seats.find((s) => s.row === row && s.seatNumber === col);
 
-  const getStatus = (id) => {
-    const s = seatMap[id];
-    if (!s) return 'empty';
-    if (selectedIds.includes(id)) return 'selected';
-    if (s.status === 'Sold') return 'sold';
-    if (s.seatType === 'LoveNest') return 'lovenest';
-    return 'available';
-  };
-
-  const isLN = (id) => seatMap[id]?.seatType === 'LoveNest';
-
-  const getLNPair = (row, col) => {
-    const isOdd = col % 2 === 1;
-    const partnerCol = isOdd ? col + 1 : col - 1;
-    const leftCol = isOdd ? col : partnerCol;
-    const rightCol = isOdd ? partnerCol : col;
-    return {
-      leftId: `${row}${leftCol}`,
-      rightId: `${row}${rightCol}`,
-      leftCol,
-      rightCol,
-    };
-  };
-
-  const handleClick = (row, col) => {
-    const id = `${row}${col}`;
-    const s = seatMap[id];
-    if (!s || s.status === 'Sold') return;
-
-    if (s.seatType === 'LoveNest') {
-      const { leftId, rightId } = getLNPair(row, col);
-      const bothSelected =
-        selectedIds.includes(leftId) && selectedIds.includes(rightId);
-      if (bothSelected) {
-        onToggle([leftId, rightId], 'deselect');
-      } else {
-        onToggle([leftId, rightId], 'select');
+  const renderBlock = (row, colsBlock, isNumberRow = false) => {
+    return colsBlock.map((col, index) => {
+      const isLastInBlock = index === colsBlock.length - 1;
+      
+      const seat = findSeat(row, col);
+      const isLoveNest = row === 'G' || seat?.seatType?.toLowerCase().includes('love');
+      const isOdd = col % 2 !== 0;
+      
+      let marginClass = !isLastInBlock ? 'mr-2 md:mr-3' : '';
+      
+      // Logika margin khusus Love Nest agar menyatu per pasang (1-2, 3-4, 5-6, 7-8, dst)
+      if (isLoveNest && !isNumberRow) {
+        if (isOdd) {
+          marginClass = '';
+        } else if (!isLastInBlock) {
+          marginClass = 'mr-5.5 md:mr-8.25'; 
+        }
       }
-    } else {
-      onToggle([id]);
-    }
-  };
 
-  const regularClass = (status) => {
-    const base =
-      'w-6 h-5 flex-shrink-0 transition-colors duration-150 rounded-t-sm rounded-b-[2px]';
-    switch (status) {
-      case 'selected':
-        return `${base} bg-primary cursor-pointer`;
-      case 'sold':
-        return `${base} bg-[#8C8C8C] cursor-not-allowed`;
-      default:
-        return `${base} bg-[#E0E0E0] cursor-pointer hover:bg-primary/30`;
-    }
-  };
+      // Render untuk baris angka penunjuk kolom di bagian bawah
+      if (isNumberRow) {
+        return (
+          <div 
+            key={`num-${col}`} 
+            className="h-6 w-6 md:h-8 md:w-8 flex items-center justify-center text-xs md:text-sm font-bold text-gray-500 mr-2 md:mr-3 last:mr-0"
+          >
+            {col}
+          </div>
+        );
+      }
 
-  const lnLeftClass = (leftStatus) => {
-    const base = 'flex-shrink-0 transition-colors duration-150 cursor-pointer';
-    const color = lnColor(leftStatus);
-    return `${base} ${color} h-5 w-[26px] rounded-tl-[10px] rounded-bl-[4px] rounded-tr-[2px] rounded-br-[0px]`;
-  };
+      // Jika data kursi tidak ditemukan (kosong/lorong)
+      if (!seat) {
+        return <div key={`empty-${row}-${col}`} className="h-6 w-6 md:h-8 md:w-8 shrink-0" />;
+      }
 
-  const lnRightClass = (rightStatus) => {
-    const base = 'flex-shrink-0 transition-colors duration-150 cursor-pointer';
-    const color = lnColor(rightStatus);
-    return `${base} ${color} h-5 w-[26px] rounded-tr-[10px] rounded-br-[4px] rounded-tl-[2px] rounded-bl-[0px]`;
-  };
+      const isSold = seat.status?.toLowerCase() === 'sold';
+      const isSelected = selectedIds.includes(seat.id);
 
-  const lnColor = (status) => {
-    switch (status) {
-      case 'selected':
-        return 'bg-primary';
-      case 'sold':
-        return 'bg-[#8C8C8C]';
-      default:
-        return 'bg-pink-400 hover:bg-pink-500';
-    }
-  };
+      // Membuat sudut melengkung khas sofa gandeng (kiri melengkung kiri saja, kanan melengkung kanan saja)
+      let radiusClass = 'rounded-md';
+      if (isLoveNest) {
+        radiusClass = isOdd 
+          ? 'rounded-l-xl rounded-r-none border-r border-white/10' 
+          : 'rounded-r-xl rounded-l-none border-l border-white/10';
+      }
 
-  const renderSection = (cols) => {
-    return (
-      <div className="flex flex-col gap-1.5">
-        {/* Nomor kolom */}
-        <div className="flex items-center gap-1.25 pl-4.75">
-          {cols.map((c) => (
-            <span
-              key={c}
-              className="w-6 shrink-0 text-center text-[10px] text-gray-400"
-            >
-              {c}
-            </span>
-          ))}
-        </div>
+      // Pengaturan warna latar belakang kursi
+      let bgClass = 'bg-[#D0D0E8] hover:bg-primary/30';
+      if (isSold) {
+        bgClass = 'bg-darkgrey cursor-not-allowed text-transparent';
+      } else if (isSelected) {
+        bgClass = 'bg-primary text-white shadow-[0_2px_6px_rgba(18,66,223,0.4)]';
+      } else if (isLoveNest) {
+        bgClass = 'bg-pink-400 hover:bg-pink-500 text-white';
+      }
 
-        {/* Baris */}
-        {rows.map((row) => {
-          const rendered = new Set();
-
-          return (
-            <div key={row} className="flex items-center gap-1.25">
-              {/* Label baris */}
-              <span className="w-3.5 shrink-0 text-center text-[11px] text-gray-400">
-                {row}
-              </span>
-
-              {cols.map((col) => {
-                if (rendered.has(col)) return null;
-
-                const id = `${row}${col}`;
-                const status = getStatus(id);
-
-                // LoveNest pair rendering
-                if (isLN(id)) {
-                  const { leftCol, rightCol, leftId, rightId } = getLNPair(
-                    row,
-                    col
-                  );
-                  if (col !== leftCol) {
-                    rendered.add(col);
-                    return null;
-                  }
-
-                  rendered.add(leftCol);
-                  rendered.add(rightCol);
-
-                  const leftStatus = getStatus(leftId);
-                  const rightStatus = getStatus(rightId);
-                  const isSoldPair = seatMap[leftId]?.status === 'Sold';
-
-                  return (
-                    <button
-                      key={id}
-                      aria-label={`Love Nest ${leftId}-${rightId}`}
-                      disabled={isSoldPair}
-                      onClick={() => !isSoldPair && handleClick(row, col)}
-                      className="flex shrink-0 items-end gap-0 focus:outline-none"
-                      style={{ gap: '1px' }}
-                    >
-                      <span
-                        className={lnLeftClass(leftStatus)}
-                        aria-hidden="true"
-                      />
-                      <span
-                        className={lnRightClass(rightStatus)}
-                        aria-hidden="true"
-                      />
-                    </button>
-                  );
-                }
-
-                //Regular / empty seat
-                if (status === 'empty') {
-                  return (
-                    <span
-                      key={id}
-                      className="h-5 w-6 shrink-0"
-                      aria-hidden="true"
-                    />
-                  );
-                }
-
-                return (
-                  <button
-                    key={id}
-                    aria-label={`Seat ${id}`}
-                    disabled={status === 'sold'}
-                    onClick={() => status !== 'sold' && handleClick(row, col)}
-                    className={regularClass(status)}
-                  />
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
-    );
+      return (
+        <button
+          key={`${row}-${col}`}
+          type="button"
+          disabled={isSold}
+          onClick={() => onToggle(seat)}
+          title={`Row ${seat.row} - Seat ${seat.seatNumber} (${seat.seatType})`}
+          className={`h-6 w-6 md:h-8 md:w-8 transition-all duration-200 flex items-center justify-center text-[10px] font-bold ${marginClass} ${radiusClass} ${bgClass}`}
+        >
+        </button>
+      );
+    });
   };
 
   return (
-    <div className="flex justify-center gap-6">
-      {renderSection(leftCols)}
-      {renderSection(rightCols)}
+    <div className="flex flex-col gap-2 md:gap-3 select-none mx-auto w-max py-4">
+      {rows.map((row) => {
+        const isLoveNestRow = row === 'G' || seats.some(s => s.row === row && s.seatType?.toLowerCase().includes('love'));
+
+        return (
+          <div key={row} className="flex items-center">
+            {/* Label Baris Kiri (A, B, C...) */}
+            <div className="w-6 md:w-8 text-left text-xs md:text-sm font-bold text-gray-400 mr-2 md:mr-4">
+              {row}
+            </div>
+
+            {isLoveNestRow ? (
+              <div className="flex">
+                {renderBlock(row, [...leftCols, ...rightCols])}
+              </div>
+            ) : (
+              /* Layout Normal dengan Lorong Tengah untuk Baris Reguler */
+              <>
+                {/* Blok Kursi Kiri (1-7) */}
+                <div className="flex">
+                  {renderBlock(row, leftCols)}
+                </div>
+
+                {/* Lorong Jalan Tengah */}
+                <div className="w-8 md:w-14" />
+
+                {/* Blok Kursi Kanan (8-14) */}
+                <div className="flex">
+                  {renderBlock(row, rightCols)}
+                </div>
+              </>
+            )}
+          </div>
+        );
+      })}
+
+      {/* ANGKA PENUNJUK KOLOM (1 - 14) DI BAGIAN BAWAH */}
+      <div className="flex items-center mt-3">
+        <div className="w-6 md:w-8 mr-2 md:mr-4" /> {/* Spacer penyeimbang label baris */}
+        
+        <div className="flex">
+          {renderBlock(null, leftCols, true)}
+        </div>
+
+        <div className="w-5 md:w-14" /> {/* Lorong Tengah untuk Label Angka */}
+
+        <div className="flex">
+          {renderBlock(null, rightCols, true)}
+        </div>
+      </div>
     </div>
   );
-};
-
-export default SeatGrid;
+}
