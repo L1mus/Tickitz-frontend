@@ -5,7 +5,6 @@ import FilterDropdown from '../molecules/FilterDropdown';
 import { Button } from '../atoms/Button';
 import { fetchMovieListThunk, fetchSalesChartThunk } from '../../redux/slices/dashboardSlice';
 
-
 const PERIOD_OPTIONS = [
   { value: 'weekly', label: 'Weekly' },
   { value: 'monthly', label: 'Monthly' },
@@ -21,13 +20,11 @@ function SalesChartCard() {
   const [selectedPeriod, setSelectedPeriod] = useState('weekly');
   const [activeTitle, setActiveTitle] = useState('All Movies — Weekly');
 
-  // Dropdown options dibangun dari movieList (dari Redux)
   const movieOptions = [
     { value: '', label: 'All Movies' },
     ...movieList.map((m) => ({ value: m.title, label: m.title })),
   ];
 
-  // Fetch movie list untuk dropdown & chart awal saat mount
   useEffect(() => {
     dispatch(fetchMovieListThunk());
     dispatch(fetchSalesChartThunk({ filterBy: 'weekly', movieName: '' }));
@@ -69,7 +66,7 @@ function SalesChartCard() {
       </div>
 
       {error && (
-        <p className="text-sm text-red-500 mb-4">Gagal memuat data: {error}</p>
+        <p className="text-sm text-red-500 mb-4">Failed to load data: {error}</p>
       )}
 
       <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-6">{activeTitle}</h3>
@@ -78,15 +75,15 @@ function SalesChartCard() {
         <div className="h-75 min-w-125 md:min-w-full">
           {isLoading ? (
             <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-              Memuat data...
+              Loading...
             </div>
           ) : error ? (
             <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-              Terjadi kesalahan saat memuat data.
+              An error occurred while loading data.
             </div>
           ) : labels.length === 0 ? (
             <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-              Tidak ada data untuk filter ini.
+              There is no data for this filter.
             </div>
           ) : (
             <AnalyticsLineChart
