@@ -33,7 +33,7 @@ function MovieCard({
     >
       <div className="relative aspect-2/3 w-full overflow-hidden rounded-2xl shadow-md">
         <img
-          src={poster}
+          src={poster.startsWith("https") ? poster : `http://localhost:8080/img/`+ poster}
           alt={title}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />

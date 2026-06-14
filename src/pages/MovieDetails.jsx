@@ -184,9 +184,6 @@ function MovieDetails() {
 
         setErrors((prev) => ({ ...prev, [name]: false }));
 
-        if (name === 'location') {
-            dispatch(setSelectedLocation(value));
-        }
     };
 
     const handleBookNow = () => {
@@ -261,7 +258,7 @@ function MovieDetails() {
             <section className="relative h-120 w-full overflow-hidden bg-black px-0">
                 <img
                     className="h-full w-full object-cover object-center"
-                    src={`${movieDetail?.poster}`}
+                    src={movieDetail?.poster.startsWith("https") ? movieDetail?.poster : "http://localhost:8080/img/"+ movieDetail?.poster}
                     alt={movieDetail?.title}
                 />
                 <div className="absolute inset-0 h-120 bg-black/50" />
@@ -272,7 +269,7 @@ function MovieDetails() {
                     <div className="shrink-0">
                         <img
                             className="rounded-md shadow-lg md:mt-30 md:w-80"
-                            src={`${movieDetail?.poster}`}
+                            src={movieDetail?.poster.startsWith("https") ? movieDetail?.poster : "http://localhost:8080/img/"+ movieDetail?.poster}
                             alt={movieDetail?.title}
                         />
                     </div>
