@@ -9,7 +9,7 @@ const DateTimePicker = ({
   onRemoveDate,
   onToggleTime,
   onRemoveTime,
-  onSelectAllTimes, // 👈 1. TAMBAHKAN PROP BARU DI SINI
+  onSelectAllTimes,
   errors,
 }) => {
   const [tempDate, setTempDate] = useState('');
@@ -20,7 +20,6 @@ const DateTimePicker = ({
     }
   };
 
-  // 👈 2. HITUNG APAKAH SEMUA JAM PRESET SUDAH TERPILIH
   const isAllTimesSelected = PRESET_TIMES.every((time) => cinemaTimes.includes(time));
 
   return (
@@ -29,7 +28,6 @@ const DateTimePicker = ({
         Set Date &amp; Time
       </label>
 
-      {/* DATE SECTION (Tetap sama) */}
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-3">
           <input
@@ -74,11 +72,9 @@ const DateTimePicker = ({
         </div>
       </div>
 
-      {/* TIME SECTION */}
       <div className="space-y-2 pt-2">
         <div className="flex flex-wrap gap-2.5">
           
-          {/* 👈 3. TAMBAHKAN TOMBOL ALL DI SINI */}
           <button
             type="button"
             onClick={() => onSelectAllTimes(PRESET_TIMES, isAllTimesSelected)}
@@ -93,7 +89,6 @@ const DateTimePicker = ({
             All
           </button>
 
-          {/* GARIS PEMBATAL KECIL UNTUK ESTETIKA (Opsional) */}
           <div className="w-px h-8 bg-gray-200 self-center mx-0.5"></div>
 
           {PRESET_TIMES.map((time) => {
@@ -117,7 +112,6 @@ const DateTimePicker = ({
           })}
         </div>
 
-        {/* Selected times tracker bawah (Tetap sama) */}
         <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-semibold text-gray-500">
           {cinemaTimes.map((time, idx) => (
             <span
