@@ -7,8 +7,9 @@ import { useForm } from 'react-hook-form';
 import InputField from '../components/atoms/Input';
 import { Button } from '../components/atoms/Button';
 import Stepper from '../components/molecules/Stepper';
-import { useDispatch,useSelector } from 'react-redux';
-import { resetPasswordSlice,clearResetFlow } from '../redux/slices/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { resetPasswordSlice, clearResetFlow } from '../redux/slices/authSlice';
+import AuthLayout from '../components/templates/AuthLayout';
 
 const schema = joi.object({
     new_password: joi.string().min(8).required().messages({
@@ -29,10 +30,10 @@ function ForgotPassword() {
     const navigate = useNavigate();
     const dispatch = useDispatch()
     const { isLoading, resetPassEmail, isResetOtpVerified } = useSelector((state) => state.auth);
-    const {register,handleSubmit,formState: { errors },} = useForm({
+    const { register, handleSubmit, formState: { errors }, } = useForm({
         resolver: joiResolver(schema),
     });
-    const onSubmit = async(data) => {
+    const onSubmit = async (data) => {
         try {
             await dispatch(resetPasswordSlice({
                 email: resetPassEmail,
@@ -55,21 +56,6 @@ function ForgotPassword() {
             toast.error(error || "Failed to reset password. Session might be expired.");
         }
     };
-    const backgrounds = [
-        '/src/assets/images/bg-auth.svg',
-        '/src/assets/images/bg-auth-2.jpg',
-        '/src/assets/images/bg-auth-3.jpg',
-    ];
-
-    const [currentBg, setCurrentBg] = useState(0);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentBg((prev) => (prev + 1) % backgrounds.length);
-        }, 3000);
-
-        return () => clearInterval(interval);
-    }, [backgrounds.length]);
     // useEffect(() => {
     //     if (!resetPassEmail || !isResetOtpVerified) {
     //         toast.error("Unauthorized access. Please verify OTP first.");
@@ -77,15 +63,7 @@ function ForgotPassword() {
     // }, [resetPassEmail, isResetOtpVerified, navigate]);
 
     return (
-        <div className="font-main relative flex min-h-screen flex-col items-center justify-center px-2 py-8">
-            {backgrounds.map((bg, index) => (
-                <div
-                    key={index}
-                    className={`absolute inset-0 z-0 bg-black/40 bg-cover bg-center bg-no-repeat bg-blend-overlay transition-opacity duration-1000 ease-in-out ${index === currentBg ? 'opacity-100' : 'opacity-0'
-                        }`}
-                    style={{ backgroundImage: `url('${bg}')` }}
-                />
-            ))}
+        <AuthLayout>
             <section className="mb-8 flex justify-center">
                 <img
                     src="/src/assets/images/tickitz-white.svg"
@@ -128,13 +106,14 @@ function ForgotPassword() {
                         )}
                     </div>
 
-                    <Button type="submit" color="blue"size="full"shape="rectangle" className="hover:bg-blue-800" disabled={isLoading}
+                    <Button type="submit" color="blue" size="full" shape="rectangle" className="hover:bg-blue-800" disabled={isLoading}
                     >
                         {isLoading ? "Saving..." : "Save"}
                     </Button>
                 </form>
             </main>
-        </div>
+
+        </AuthLayout>
     );
 }
 
