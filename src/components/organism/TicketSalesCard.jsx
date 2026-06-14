@@ -44,7 +44,7 @@ function TicketSalesCard() {
     <div className="rounded-3xl bg-white p-6 md:p-10 shadow-sm">
       <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">Ticket Sales</h2>
 
-      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8 max-h-30">
+      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8">
         <FilterDropdown
           value={selectedGenre}
           onChange={(e) => setSelectedGenre(e.target.value)}
