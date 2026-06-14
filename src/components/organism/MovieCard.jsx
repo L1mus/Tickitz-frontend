@@ -55,12 +55,12 @@ function MovieCard({
         </div>
       </div>
 
-      <p className="mt-3 line-clamp-2 text-lg font-bold text-gray-900">
+      <p className="mt-2 line-clamp-2 text-lg font-bold text-gray-900">
         {title}
       </p>
-      <p className="text-primary my-2 font-bold">{format(release)}</p>
+      <p className="text-primary font-bold">{format(release)}</p>
 
-      <div className="mt-1 flex flex-wrap gap-2">
+      <div className=" flex flex-wrap gap-2 mt-1">
         {genres?.length === 0 ? (
           <p>Failed to load genre</p>
         ) : (
