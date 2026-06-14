@@ -1,12 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getMoviesAPI } from "../../services/adminMoviesService";
+import axios from "axios";
 
 export const fetchMoviesThunk = createAsyncThunk(
   'movies/fetchMovies',
   async (params, { rejectWithValue }) => {
     try {
       // params berisi { page, limit, month, year }
-      const response = await getMoviesAPI(params.page = 1,params.limit = 10,params.month,params.year);
+      const response = await axios.get('http://localhost:8080/api/admin/movies', { params });
+
       return response.data.data; 
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Something went wrong');

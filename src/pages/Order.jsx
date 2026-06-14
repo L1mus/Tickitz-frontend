@@ -64,11 +64,15 @@ export default function OrderPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f6f8] flex flex-col font-sans antialiased">
+    <div className="min-h-screen bg-[#f5f6f8] flex-col font-sans antialiased  flex justify-center items-center">
       
       {/* Container Stepper Atas */}
-      <div className="bg-white rounded-b-2xl shadow-sm mb-8">
-        <Stepper active={2} />
+      <div className="bg-transparent rounded-b-2xl mb-7 mt-7 w-full px-4 md:px-30">
+        <Stepper
+            steps={['Dates And Time', 'Seat', 'Payment']}
+            activeStep={1}
+            showCheck={true}
+          />
       </div>
 
       {/* Konten Halaman */}

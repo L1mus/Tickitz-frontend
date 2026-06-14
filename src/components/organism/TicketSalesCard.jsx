@@ -16,7 +16,6 @@ function TicketSalesCard() {
   const [selectedLocation, setSelectedLocation] = useState(0);
   const [activeTitle, setActiveTitle] = useState('All Genres, All Locations');
 
-  // Dropdown options dibangun dari Redux state
   const genreOptions = [
     { value: 0, label: 'All Genres' },
     ...genres.map((g) => ({ value: g.id, label: g.name })),
@@ -27,7 +26,6 @@ function TicketSalesCard() {
     ...locations.map((l) => ({ value: l.id, label: l.name })),
   ];
 
-  // Fetch options & chart awal saat mount
   useEffect(() => {
     dispatch(fetchMovieOptionsThunk());
     dispatch(fetchTicketSalesThunk({ genreId: 0, locationId: 0 }));
@@ -71,7 +69,7 @@ function TicketSalesCard() {
       </div>
 
       {error && (
-        <p className="text-sm text-red-500 mb-4">Gagal memuat data: {error}</p>
+        <p className="text-sm text-red-500 mb-4">Failed to load data: {error}</p>
       )}
 
       <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-6">{activeTitle}</h3>
@@ -80,15 +78,15 @@ function TicketSalesCard() {
         <div className="h-75 min-w-125 md:min-w-full">
           {isLoading ? (
             <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-              Memuat data...
+              Loading...
             </div>
           ) : error ? (
             <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-              Terjadi kesalahan saat memuat data.
+              An error occurred while loading data.
             </div>
           ) : labels.length === 0 ? (
             <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-              Tidak ada data untuk filter ini.
+              There is no data for this filter.
             </div>
           ) : (
             <AnalyticsLineChart
