@@ -1,8 +1,15 @@
+![AUTH PAGE](AuthPage.jpeg)
+
+![LANDING PAGE](LandingPage.jpeg)
+
+![RESULT PAGE](ResultPage.jpeg)
+
 # Tickits App - Frontend
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/license/mit)
 
-## About Tickitz 
+## About Tickitz
+
 Tickitz is a smooth and stylish movie booking web application.
 Built with React.js, JavaScript, and Redux, it lets users:
 
@@ -17,7 +24,6 @@ Built with React.js, JavaScript, and Redux, it lets users:
 
 - Profile Management
 
-
 From exploring films to confirming your ticket — Tickitz brings the cinema experience to your screen.
 
 ## Technologies Used
@@ -30,6 +36,7 @@ From exploring films to confirming your ticket — Tickitz brings the cinema exp
 - [![Docker](https://img.shields.io/badge/Docker-29.5.2-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 
 ## Environment
+
 ```sh
 VITE_API_URL=<your_backend_addres>
 ```
@@ -61,9 +68,10 @@ $ npm run dev
 ```
 
 ## Changelog
-| Version | Description |
-| ------- | ----------- |
-| 1.0  | Setup Docker multi-stage build, Nginx and setup GitHub Actions for GHCR deployment config by[Alpha Team](https://github.com/iamhanif11, https://github.com/L1mus, https://github.com/Ilhammursidi, https://github.com/aqilknz, https://github.com/Akmalrian) |
+
+| Version | Description                                                                                                                                                                                                                                                  |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1.0     | Setup Docker multi-stage build, Nginx and setup GitHub Actions for GHCR deployment config by[Alpha Team](https://github.com/iamhanif11, https://github.com/L1mus, https://github.com/Ilhammursidi, https://github.com/aqilknz, https://github.com/Akmalrian) |
 
 ## How to Contribute
 
