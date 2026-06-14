@@ -22,7 +22,6 @@ function LandingPage() {
     const upComing = upcomingMovies
     const movies = nowShowingMovies
 
-    console.log(upComing)
     const sliderRef = useRef(null);
 
     const [canGoLeft, setCanGoLeft] = useState(false);
@@ -127,7 +126,7 @@ function LandingPage() {
                                 >
                                     <MovieCard
                                         id={m.id}
-                                        poster={`${API_URL}${m.poster}`}
+                                        poster={`${m.poster}`}
                                         title={m.title}
                                         genres={m.genres}
                                     />
@@ -194,7 +193,7 @@ function LandingPage() {
                             >
                                 <MovieCard
                                     id={m.id}
-                                    poster={`${API_URL}${m.poster}`}
+                                    poster={`${m.poster}`}
                                     title={m.title}
                                     release={m.release_date}
                                     genres={m.genres}

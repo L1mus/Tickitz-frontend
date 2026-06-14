@@ -53,8 +53,9 @@ const schema = Joi.object({
   synopsis: Joi.string().trim().required().messages({
     'string.empty': 'Synopsis cannot be empty',
   }),
-  movieImage: Joi.any().required().messages({
-    'any.required': 'Please select the movie poster image first!',
+  movieImage: Joi.any().invalid(null).required().messages({
+  'any.invalid': 'Please select the movie poster image first!',
+  'any.required': 'Please select the movie poster image first!',
   }),
   cinemaDates: Joi.array().min(1).required().messages({
     'array.min': 'Please select at least one cinema release date!',
@@ -89,7 +90,7 @@ const useMovieForm = (id, isEditMode) => {
         setCastOptions(response.data.casts || []);
         setLocationOptions(response.data.locations || []);
       } catch (error) {
-        console.error('Gagal memuat data opsi film:', error);
+        console.error('Failed to load movie options data:', error);
       } finally {
         setOptionsLoaded(true);
       }
@@ -143,13 +144,13 @@ const useMovieForm = (id, isEditMode) => {
           durationHour,
           durationMinute,
           synopsis: data.synopsis || '',
-          movieImage: 'existing_image_url',
+          movieImage: data.poster,
           cinemaDates: data.dates || [],
           cinemaTimes: data.times || [],
         });
       } catch (error) {
-        console.error('Gagal memuat detail film:', error);
-        toast.error('Gagal memuat data film untuk diedit.');
+        console.error('Failed to load movie details:', error);
+        toast.error('Failed to load movie data for editing.');
         navigate(-1);
       } finally {
         setIsDetailLoading(false);
@@ -263,22 +264,27 @@ const useMovieForm = (id, isEditMode) => {
         await axios.patch(`http://localhost:8080/api/admin/movies/${id}`, dataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        toast.success('Film Berhasil Diperbarui!');
+        toast.success('Movies added success!');
       } else {
         await axios.post('http://localhost:8080/api/admin/movies', dataToSend, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        toast.success('Film Baru Berhasil Ditambahkan!');
+        toast.success('Movies update success!');
       }
 
       navigate(-1);
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || 'Terjadi kesalahan saat menyimpan data film.');
+      toast.error(err.response?.data?.message || 'an error occurred while saving the movie data.');
     }
   };
 
   const isChecked = (fieldName, optionId) => formData[fieldName].includes(Number(optionId));
+
+  const setValue = (fieldName, value) => {
+  setFormData((prev) => ({ ...prev, [fieldName]: value }));
+  if (errors[fieldName]) setErrors((prev) => ({ ...prev, [fieldName]: null }));
+};
 
   return {
     formData,
@@ -298,6 +304,7 @@ const useMovieForm = (id, isEditMode) => {
     handleRemoveTime,
     handleSubmit,
     isChecked,
+    setValue,
   };
 };
 
