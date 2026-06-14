@@ -21,6 +21,7 @@ function MovieDetailModal({
   castOptions,
   locationOptions,
 }) {
+    
   if (!isModalOpen) return null;
 
   return (
