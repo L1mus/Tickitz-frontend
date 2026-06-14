@@ -25,6 +25,7 @@ From exploring films to confirming your ticket — Tickitz brings the cinema exp
 <img src="./AuthPage.jpeg" width=500px/>
 <img src="./LandingPage.jpeg" width=500px/>
 <img src="./ResultPage.jpeg" width=500px/>
+<img src="./DashboardPage.jpeg" width=500px/>
 
 ## Technologies Used
 
