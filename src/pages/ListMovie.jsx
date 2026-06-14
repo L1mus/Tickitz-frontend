@@ -5,8 +5,6 @@ import { Button } from '../components/atoms/Button';
 import { fetchMoviesThunk } from '../redux/slices/adminMoviesSlice';
 import toast from 'react-hot-toast';
 
-// const BACKEND_URL = "http://localhost:8080/img/" ;
-
 function ListMovie() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -75,7 +73,9 @@ function ListMovie() {
 
   const handleView = (id) => toast(`Melihat detail film ID: ${id}`);
   const handleEdit = (movie) =>
-    navigate(`/admin/movies/add-movie/${movie.id}`, { state: { movieData: movie } });
+    navigate(`/admin/movies/add-movie/${movie.id}`, {
+      state: { movieData: movie },
+    });
   const handleDelete = () =>
     confirm('Apakah Anda yakin?') &&
     toast('Fitur hapus segera diimplementasikan.');
@@ -91,7 +91,6 @@ function ListMovie() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-700">
-
       <main className="px-4 py-8 md:px-20 md:py-12">
         <div className="rounded-2xl bg-white p-6 md:p-10">
           <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
