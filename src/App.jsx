@@ -1,5 +1,8 @@
 // import React from "react";
 import { Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useDispatch,useSelector } from 'react-redux';
+import { getProfilSlice } from './redux/slices/userSlice';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ActivatePage from './pages/ActivatePage';
@@ -35,9 +38,17 @@ import Payment from './pages/Payment';
 import TicketResult from './pages/TicketResult';
 import MovieDetails from './pages/MovieDetails';
 function App() {
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(getProfilSlice());
+    }
+  }, [token, dispatch]);
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} autoClose={3000}/>
+      <Toaster position="top-right" reverseOrder={false} autoClose={3000} />
       <Routes>
         <Route element={<PublicRoute />}>
           <Route path="auth">
@@ -79,7 +90,7 @@ function App() {
             <Route path="profile" element={<ProfilePage />} />
             {/* <Route path="profile" element={<ProfilePage />} /> */}
             <Route path="payment/:bookingId" element={<Payment />} />
-            <Route path="order" element={<OrderPage />} /> 
+            <Route path="order" element={<OrderPage />} />
             <Route path="result/:transactionId" element={<TicketResult />} />
           </Route>
 
