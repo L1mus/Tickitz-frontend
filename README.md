@@ -1,10 +1,9 @@
 
 
-![RESULT PAGE](ResultPage.jpeg)
 
 <img src="./AuthPage.jpeg" width=500px/>
 <img src="./LandingPage.jpeg" width=500px/>
-<img src="./ResultPage.jpeg.jpeg" width=500px/>
+<img src="./ResultPage.jpeg" width=500px/>
 
 # Tickits App - Frontend
 
