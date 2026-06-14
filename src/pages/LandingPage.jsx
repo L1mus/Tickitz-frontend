@@ -7,12 +7,12 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { getMovie } from "../redux/slices/movieSlice";
 import { useNavigate } from "react-router";
+import { Button } from "../components/atoms/Button";
 
 function LandingPage() {
     const navigate = useNavigate()
     const dispatch = useDispatch();
     const { movieList, upcomingMovies, nowShowingMovies, loading, error, activeLocation } = useSelector((state) => state.movies)
-    const API_URL = "http://localhost:8080/img/"
 
     useEffect(() => {
         dispatch(getMovie({ status: "now_showing", limit: 4, location_id: activeLocation?.id }));
@@ -67,19 +67,19 @@ function LandingPage() {
                     <section>
                         <div className="m-auto mt-5 grid size-75 md:size-100 lg:size-110 grid-cols-2 grid-rows-3 gap-4">
                             <div className="row-span-2 col-start-1 row-start-1">
-                                <img src="/src/assets/images/nobody-loves-kay.webp" alt="" className="w-full h-full object-cover rounded-t-lg" />
+                                <img src="https://image.tmdb.org/t/p/w500/pxG26JdyuiDvJbSoucknaFiLeZD.jpg" alt="toy-story-image" className="w-full h-full object-cover rounded-t-lg" />
                             </div>
 
                             <div className="col-start-1 row-start-3">
-                                <img src="/src/assets/images/monster-pabrik-rambut.webp" alt="" className="w-full h-full object-cover rounded-b-lg" />
+                                <img src="https://image.tmdb.org/t/p/w500/moejGxR2haap29d9NQ7qe8x4eGj.jpg" alt="supergirl-image" className="w-full h-full object-cover rounded-b-lg" />
                             </div>
 
                             <div className="col-start-2 row-start-1">
-                                <img src="/src/assets/images/colony.webp" alt="" className="w-full h-full object-cover rounded-t-lg" />
+                                <img src="https://image.tmdb.org/t/p/w500/bzHHSpbV7uSkNfYsXRoBKxD1P8Y.jpg" alt="moana-image" className="w-full h-full object-cover rounded-t-lg" />
                             </div>
 
                             <div className="row-span-2 col-start-2 row-start-2">
-                                <img src="/src/assets/images/warkop-dki.webp" alt="" className="w-full h-full object-cover rounded-b-lg" />
+                                <img src="https://image.tmdb.org/t/p/w500/nz7i42yhLIJ4ve9JKgM6NthoLHO.jpg" alt="minions-image" className="w-full h-full object-cover rounded-b-lg" />
                             </div>
                         </div>
 
@@ -136,9 +136,9 @@ function LandingPage() {
                         </section>
                     </section>
 
-                    <button onClick={() => navigate("/movies")} className="hidden md:block font-bold mx-auto text-primary mt-4">
+                    <Button onClick={() => navigate("/movies")} className="hidden md:block font-bold mx-auto text-primary mt-4">
                         View All ➔
-                    </button>
+                    </Button>
                 </section>
 
 
@@ -160,21 +160,21 @@ function LandingPage() {
 
                                 {upComing?.length > 4 && (
                                     <div className="hidden md:flex gap-3">
-                                        <button
+                                        <Button
                                             onClick={() => slider("prev")}
                                             className={`w-10 h-10 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center hover:bg-gray-300 transition-all duration-300 shadow-sm ${!canGoLeft ? "opacity-0 pointer-events-none" : "opacity-100"
                                                 }`}
                                         >
                                             <span className="-scale-x-100 inline-block">➔</span>
-                                        </button>
+                                        </Button>
 
-                                        <button
+                                        <Button
                                             onClick={() => slider("next")}
                                             className={`w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:opacity-90 transition-all duration-300 shadow-sm ${!canGoRight ? "opacity-0 pointer-events-none" : "opacity-100"
                                                 }`}
                                         >
                                             ➔
-                                        </button>
+                                        </Button>
                                     </div>
                                 )}
                             </div>
@@ -212,9 +212,9 @@ function LandingPage() {
                     <div className="flex flex-col md:flex-row md:justify-center gap-3">
                         <InputField className="md:w-60" placeholder="first name"></InputField>
                         <InputField className="md:w-60" placeholder="email address"></InputField>
-                        <button className="bg-white text-blue-600 font-bold md:w-60 py-3 rounded-lg mt-2">
+                        <Button className="bg-white text-blue-600 font-bold md:w-60 py-3 rounded-lg mt-2">
                             Subscribe Now
-                        </button>
+                        </Button>
                     </div>
 
                     <div className="absolute -bottom-30 -right-20 w-50 h-50 border-4 border-white/80 rounded-full"></div>

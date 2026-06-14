@@ -3,6 +3,7 @@ import MovieCard from '../components/organism/MovieCard';
 import Footer from '../components/organism/Footer';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMovie } from '../redux/slices/movieSlice';
+import { Button } from '../components/atoms/Button';
 
 function MovieList() {
   const { movieList, pagination, loading, error, activeLocation } = useSelector(
@@ -13,9 +14,9 @@ function MovieList() {
   const [search, setSearch] = useState('');
   const [activeGenre, setActiveGenre] = useState('');
   const [page, setPage] = useState(1);
-  // const API_URL = "http://localhost:8080/img/"
 
-  const genresList = ['Thriller', 'Horror', 'Romantic', 'Adventure', 'Sci-Fi'];
+  const genresList = ['Thriller', 'Horror', 'Music', 'War', 'TV Movie', 'Family', 'Mystery', 'Western', 'History', 'Documentary', 'Crime', 'Fantasy', 'Romance', 'Animation', 'Adventure', 'Science Fiction', 'Comedy', 'Drama'];
+
   useEffect(() => {
     setPage(1);
   }, [activeLocation?.id]);
@@ -137,14 +138,13 @@ function MovieList() {
 
           <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
             {heroBanners.map((_, index) => (
-              <button
+              <Button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`rounded-full transition-all duration-300 ${
-                  currentIndex === index
+                className={`rounded-full transition-all duration-300 ${currentIndex === index
                     ? 'h-1.5 w-6 bg-blue-600'
                     : 'h-1.5 w-1.5 bg-white/50 hover:bg-white'
-                }`}
+                  }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
             ))}
@@ -168,7 +168,7 @@ function MovieList() {
             >
               Search Movie
             </label>
-            <div className="mt-2 flex h-12 w-70 items-center rounded-md border border-gray-300 bg-white p-2 px-4">
+            <div className="mt-2 flex h-12 w-63 items-center rounded-md border border-gray-300 bg-white p-2 px-4">
               <input
                 id="search-input"
                 value={search}
@@ -182,22 +182,28 @@ function MovieList() {
 
           <div>
             <p className="mb-2 font-semibold text-gray-700">Filter Genre</p>
-            <div className="flex flex-wrap gap-2">
-              {genresList.map((g) => (
-                <button
-                  key={g}
-                  onClick={() => handleGenreClick(g)}
-                  className={`rounded-md border px-4 py-2 text-sm font-medium ${
-                    activeGenre === g
-                      ? 'border-blue-600 bg-blue-600 text-white shadow-sm'
-                      : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  {g}
-                </button>
-              ))}
+            <div className={`relative flex h-12 w-48 items-center rounded-sm bg-gray-200 p-3`}>
+              <svg className="z-10 h-5 w-5 shrink-0 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M7 12h10M10 18h4" />
+              </svg>
+              <select
+                value={activeGenre}
+                onChange={(e) => handleGenreClick(e.target.value)}
+                className="absolute inset-0 z-0 w-full cursor-pointer appearance-none bg-transparent p-3 pl-10 pr-8 font-bold text-gray-500 outline-none text-sm"
+              >
+                <option value="">All Genres</option>
+                {genresList.map((g) => (
+                  <option key={g} value={g} className="font-normal text-black">
+                    {g}
+                  </option>
+                ))}
+              </select>
+              <svg className="pointer-events-none z-10 ml-auto h-4 w-4 shrink-0 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
           </div>
+
         </section>
 
         {loading ? (
@@ -228,48 +234,40 @@ function MovieList() {
             </section>
 
             <section className="my-8 flex flex-wrap items-center justify-center gap-2">
-              <button
+              <Button
                 disabled={!pagination?.has_prev}
                 onClick={() => handlePageChange(pagination.prev)}
                 className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Previous
-              </button>
+              </Button>
 
-              {Array.from(
-                { length: pagination?.total_page || 1 },
-                (_, index) => {
-                  const pageNumber = index + 1;
-
-                  const isActive = pagination?.current_page === pageNumber;
-
-                  return (
-                    <button
-                      key={pageNumber}
-                      onClick={() =>
-                        handlePageChange(`/api/movies?page=${pageNumber}`)
-                      }
-                      className={`h-10 w-10 rounded-md border text-sm font-semibold transition-all ${
-                        isActive
-                          ? 'scale-105 border-blue-600 bg-blue-600 text-white shadow-md'
-                          : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-800'
-                            ? 'scale-105 border-blue-600 bg-blue-600 text-white shadow-md'
-                            : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+              {getPageNumbers(pagination?.current_page, pagination?.total_page || 1).map((page, idx) =>
+                page === '...' ? (
+                  <span key={`ellipsis-${idx}`} className="px-1 text-gray-400 select-none">
+                    ...
+                  </span>
+                ) : (
+                  <Button
+                    key={page}
+                    onClick={() => handlePageChange(`/api/movies?page=${page}`)}
+                    className={`h-10 w-10 rounded-md border text-sm font-semibold transition-all ${pagination?.current_page === page
+                        ? 'scale-105 border-blue-600 bg-blue-600 text-white shadow-md'
+                        : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                       }`}
-                    >
-                      {pageNumber}
-                    </button>
-                  );
-                }
+                  >
+                    {page}
+                  </Button>
+                )
               )}
 
-              <button
+              <Button
                 disabled={!pagination?.has_next}
                 onClick={() => handlePageChange(pagination.next)}
                 className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Next
-              </button>
+              </Button>
             </section>
           </>
         )}
@@ -278,5 +276,17 @@ function MovieList() {
     </section>
   );
 }
+
+const getPageNumbers = (currentPage, totalPage) => {
+  if (totalPage <= 5) return Array.from({ length: totalPage }, (_, i) => i + 1);
+
+  if (currentPage <= 3) {
+    return [1, 2, 3, '...', totalPage];
+  } else if (currentPage >= totalPage - 2) {
+    return [1, '...', totalPage - 2, totalPage - 1, totalPage];
+  } else {
+    return [1, '...', currentPage, '...', totalPage];
+  }
+};
 
 export default MovieList;
