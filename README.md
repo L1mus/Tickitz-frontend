@@ -1,9 +1,3 @@
-![AUTH PAGE](AuthPage.jpeg)
-
-![LANDING PAGE](LandingPage.jpeg)
-
-![RESULT PAGE](ResultPage.jpeg)
-
 # Tickits App - Frontend
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/license/mit)
@@ -25,6 +19,12 @@ Built with React.js, JavaScript, and Redux, it lets users:
 - Profile Management
 
 From exploring films to confirming your ticket — Tickitz brings the cinema experience to your screen.
+
+## Preview
+
+<img src="./AuthPage.jpeg" width=500px/>
+<img src="./LandingPage.jpeg" width=500px/>
+<img src="./ResultPage.jpeg" width=500px/>
 
 ## Technologies Used
 
